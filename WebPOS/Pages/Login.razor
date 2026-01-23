@@ -1,0 +1,80 @@
+﻿
+@page "/login" 
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ErrorLoggerService ErrorLogger
+
+<div class="login-container">
+    <h3>Login</h3>
+    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <InputText id="username" @bind-Value="loginModel.Username" class="form-control" />
+            <ValidationMessage For="@(() => loginModel.Username)" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+            <ValidationMessage For="@(() => loginModel.Password)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span> Logging in...</span>
+            }
+            else
+            {
+                <span>Login</span>
+            }
+        </button>
+    </EditForm>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger mt-3">@errorMessage</div>
+    }
+</div>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string errorMessage;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = null;
+        isLoading = true;
+
+        try
+        {
+            var token = await AuthService.Login(loginModel);
+
+            if (token != null)
+            {
+                await Task.Delay(500); // Small delay for UX
+                NavigationManager.NavigateTo("/", forceLoad: false);
+            }
+            else
+            {
+                errorMessage = "Invalid username or password";
+                loginModel.Password = string.Empty; // Clear password field
+            }
+        }
+        catch (Exception ex)
+        {
+            await ErrorLogger.LogAsync(ex.Message + "-" + ex.InnerException?.Message);
+            errorMessage = "Login failed: " + ex.Message;
+            loginModel.Password = string.Empty; // Clear password field
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

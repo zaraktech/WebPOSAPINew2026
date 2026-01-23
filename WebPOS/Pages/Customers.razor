@@ -1,0 +1,185 @@
+﻿@page "/customers"
+@page "/customers/new"
+@page "/customers/edit/{Id:int}"
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
+@using System.Linq
+
+
+@inject CustomerService CustomerService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject ErrorLoggerService ErrorLogger
+@inject ToastService ToastService
+@inject DialogService DialogService
+
+@if (currentView == CustomerView.List)
+{
+    <div class="d-flex justify-content-center mt-4">
+    <SfCard CssClass="shadow" style="width:75%;">
+
+        <!-- CARD HEADER -->
+        @* <CardHeader>
+            <div class="card-header e-progress-bg text-white text-center">
+                <h3 class="mb-0">Customers</h3>
+            </div>
+        </CardHeader> *@
+
+        <!-- CARD BODY -->
+        <CardContent>
+
+            <div class="d-flex justify-content-end mb-3">
+
+                    <SfButton CssClass="btn-add mb-3"
+                              IconCss="fas fa-plus"
+                      OnClick="ShowAddForm">
+                Add New Customer
+            </SfButton>
+            </div>
+
+                @if (customers == null)
+                {
+                    <div class="d-flex justify-content-center mt-4">
+                        <SfSpinner Visible="true"></SfSpinner>
+                    </div>
+                }
+                else if (!customers.Any())
+                {
+                    <SfMessage Severity="MessageSeverity.Info">
+                        No suppliers found
+                    </SfMessage>
+                }
+
+
+           else
+            {
+                <SfGrid DataSource="@customers"
+                        AllowPaging="true"
+                        AllowSorting="true"
+							AllowFiltering="true"
+                        Width="100%">
+
+                    <GridPageSettings PageSize="10"></GridPageSettings>
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar" />
+                    <GridColumns>
+
+                        <GridColumn Field="CustomerName"
+                                    HeaderText="Customer Name"
+                                    Width="200">
+                        </GridColumn>
+
+                        <GridColumn Field="MobileNo"
+                                    HeaderText="Mobile Number"
+                                    Width="150">
+                        </GridColumn>
+
+                        <!-- ACTIONS -->
+                        <GridColumn HeaderText="Actions"
+                                    Width="200"
+                                    TextAlign="TextAlign.Center">
+
+                            <Template Context="data">
+                                @{
+                                    var customer = (Customer)data;
+                                }
+
+                                <SfButton CssClass="e-small e-primary me-2"
+                                          IconCss="fas fa-edit"
+                                          OnClick="@(() => ShowEditForm(customer.Id))">
+                                    Edit
+                                </SfButton>
+
+                                <SfButton CssClass="e-small e-danger"
+                                          IconCss="fas fa-trash-alt"
+                                          OnClick="@(() => DeleteCustomer(customer.Id))">
+                                    Delete
+                                </SfButton>
+                            </Template>
+
+                        </GridColumn>
+
+                    </GridColumns>
+
+                </SfGrid>
+            }
+
+        </CardContent>
+
+    </SfCard>
+</div>
+
+}
+else if (currentView == CustomerView.Form)
+{
+    <div class="d-flex justify-content-center mt-4">
+        <div class="card shadow" style="width: 50%;">
+            @* <div class="card-header bg-gradient text-white text-center">
+                <h3 class="mb-0">@((customer.Id == 0 ? "Add New" : "Edit") + " Customer")</h3>
+            </div> *@
+
+            <div class="card-body">
+                <EditForm Model="@customer" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">Customer Name</label>
+                        <InputText class="form-control" @bind-Value="customer.CustomerName" />
+                        <ValidationMessage For="@(() => customer.CustomerName)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mobile Number</label>
+                        <InputText class="form-control" @bind-Value="customer.MobileNo" />
+                        <ValidationMessage For="@(() => customer.MobileNo)" />
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <SfButton CssClass="e-primary"
+                                  Type="Submit"
+                                  IsDisabled="isLoading">
+                            @if (isLoading)
+                            {
+                                <SfSpinner Width="16px" CssClass="me-2" />
+                                <span>Saving...</span>
+                            }
+                            else
+                            {
+                                <i class="e-icons e-save me-1"></i>
+                                <span>Save</span>
+                            }
+                        </SfButton>
+
+                        <SfButton CssClass="e-outline e-secondary ms-2"
+                                  OnClick="ShowList">
+                            <i class="e-icons e-close me-1"></i>
+                            Cancel
+                        </SfButton>
+
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<style>
+    
+    .e-btn.btn-add {
+        background-color: #198754 !important;
+        color: white !important;
+        border: none !important;
+        padding: 6px 10px !important;
+        border-radius: 4px !important;
+        font-size: 12px !important;
+    }
+
+        .e-btn.btn-add:hover {
+            background-color: #198754 !important;
+        }
+</style>

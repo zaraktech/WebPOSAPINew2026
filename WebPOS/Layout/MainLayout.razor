@@ -1,0 +1,187 @@
+﻿@inherits LayoutComponentBase
+
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.SplitButtons
+@using WebPOS.Helpers
+@inject ToastService ToastService
+@inject NavigationManager NavigationManager
+
+
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+    <SfSidebar CssClass="sidebar"
+               Target=".page-content"
+               Width="240px"
+               IsOpen="@SidebarOpen"
+               Type="SidebarType.Over"
+               ShowBackdrop="true"
+               OverlayClick="OnOverlayClick">
+
+        <ChildContent>
+            <div class="sidebar-header">
+                <div class="logo">WebPOS</div>
+                <div class="subtitle">Point of Sale</div>
+            </div>
+
+            <SfMenu TValue="MenuItem"
+                    CssClass="menu"
+                    Items="@MenuData"
+                    Orientation="Syncfusion.Blazor.Navigations.Orientation.Vertical">
+                <MenuEvents TValue="MenuItem" ItemSelected="OnMenuItemSelected" />
+            </SfMenu>
+        </ChildContent>
+
+    </SfSidebar>
+
+
+    <!-- MAIN AREA -->
+    <div class="page-content">
+
+        <!-- TOP BAR -->
+        <SfToolbar CssClass="topbar">
+            <ToolbarEvents Clicked="ToggleSidebar"></ToolbarEvents>
+            <ToolbarItems>
+                <ToolbarItem PrefixIcon="e-icons e-menu"
+                             TooltipText="Menu">
+                </ToolbarItem>
+
+                <ToolbarItem Align="ItemAlign.Center">
+                    <Template>
+                        <span class="page-title">@PageTitle</span>
+                    </Template>
+                </ToolbarItem>
+
+                <ToolbarItem Align="ItemAlign.Right">
+                    <Template>
+                        <div class="user-chip">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Admin</span>
+                        </div>
+                    </Template>
+                </ToolbarItem>
+            </ToolbarItems>
+        </SfToolbar>
+        <ConfirmDialog />
+        <!-- PAGE BODY -->
+        <div class="content-area">
+            @Body
+        </div>
+
+    </div>
+
+</div>
+<AppToast @ref="AppToastRef" />
+
+@code {
+
+    bool SidebarOpen = false;
+    public static AppToast? AppToastRef;
+
+    async Task OnMenuItemSelected(MenuEventArgs<MenuItem> args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.Item.Url))
+        {
+            SidebarOpen = false;
+            StateHasChanged();
+
+            await Task.Yield();   // allows UI to update
+
+            NavigationManager.NavigateTo(args.Item.Url);
+        }
+    }
+
+
+    void ToggleSidebar(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.TooltipText == "Menu")
+            SidebarOpen = !SidebarOpen;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ToastService.Toast = AppToastRef;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        //NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        SidebarOpen = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+    void OnOverlayClick()
+    {
+        SidebarOpen = false;
+    }
+
+    string PageTitle =>
+        NavigationManager.Uri.Replace(NavigationManager.BaseUri, "")
+            .Replace("/", " ")
+            .Replace("-", " ")
+            .ToUpper();
+
+    public class MenuItem
+    {
+        public string Text { get; set; }
+        public string Url { get; set; }
+        public string IconCss { get; set; }
+        public List<MenuItem> Items { get; set; }
+    }
+
+    List<MenuItem> MenuData = new()
+    {
+        new MenuItem { Text="Dashboard", Url="/", IconCss="e-icons e-home" },
+
+        new MenuItem
+        {
+            Text="Masters",
+            IconCss="e-icons e-folder",
+            Items = new()
+            {
+                new MenuItem { Text="Customers", Url="/customers" },
+                new MenuItem { Text="Suppliers", Url="/suppliers" },
+                new MenuItem { Text="Products", Url="/products" },
+                new MenuItem { Text="Sizes", Url="/sizespage" },
+                new MenuItem { Text="Shops", Url="/shopnames" },
+                new MenuItem { Text="Offers", Url="/offers" }
+            }
+        },
+
+        new MenuItem
+        {
+            Text="Transactions",
+            IconCss="e-icons e-repeat",
+            Items = new()
+            {
+                new MenuItem { Text="Purchases", Url="/purchases" },
+                new MenuItem { Text="Sales", Url="/sales" }
+            }
+        },
+
+        new MenuItem
+        {
+            Text="Reports",
+            IconCss="e-icons e-chart",
+            Items = new()
+            {
+                new MenuItem { Text="Purchase Report", Url="/purchase-report" },
+                new MenuItem { Text="Sales Report", Url="/sales-report" },
+                new MenuItem { Text="Stock Report", Url="/stockreport" }
+            }
+        }
+    };
+}
+

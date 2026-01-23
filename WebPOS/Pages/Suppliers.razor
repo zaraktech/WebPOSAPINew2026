@@ -1,0 +1,244 @@
+﻿@page "/suppliers"
+@page "/suppliers/new"
+@page "/suppliers/edit/{Id:int}"
+
+
+@inject SupplierService SupplierService
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService
+@inject DialogService DialogService
+
+@inject ErrorLoggerService ErrorLogger
+
+<div class="container mt-4">
+
+@if (currentView == SupplierView.List)
+{
+    <SfCard CssClass="shadow" style="width:95%">
+        @* <div class="text-center mb-3">
+            <h4 class="text-warning">Suppliers</h4>
+        </div> *@
+       <CardContent>
+        <div class="d-flex justify-content-end mb-3">
+        <SfButton CssClass="e-primary mb-3"
+                      IconCss="e-icons e-plus"
+                  OnClick="ShowAddForm">
+            Add New Supplier
+        </SfButton>
+            </div>
+        @if (isLoading)
+        {
+            <div class="d-flex justify-content-center mt-4">
+                <SfSpinner Visible="true"></SfSpinner>
+            </div>
+        }
+        else if (suppliers?.Count == 0)
+        {
+            <SfMessage Severity="MessageSeverity.Info">
+                No suppliers found
+            </SfMessage>
+        }
+        else
+        {
+            <SfGrid TValue="Supplier"
+                    DataSource="suppliers"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    Width="100%">
+
+                <GridPageSettings PageSize="10" />
+
+                <GridColumns>
+
+                    <GridColumn Field="SupplierName"
+                                HeaderText="Supplier Name"
+                                Width="200" />
+
+                    <GridColumn Field="MobileNo"
+                                HeaderText="Mobile Number"
+                                Width="150" />
+
+                    <GridColumn HeaderText="Actions"
+                                Width="120"
+                                TextAlign="TextAlign.Center">
+                        <Template Context="item">
+                            @{
+                                var supplier = (Supplier)item;
+                            }
+
+                            <SfButton CssClass="e-info e-small me-2"
+                                      IconCss="e-icons e-edit"
+                                      OnClick="@(() => ShowEditForm(supplier.SupplierId))" />
+
+                            <SfButton CssClass="e-danger e-small"
+                                      IconCss="e-icons e-delete"
+                                      OnClick="@(async () => await DeleteSupplier(supplier.SupplierId))" />
+                        </Template>
+                    </GridColumn>
+
+                </GridColumns>
+            </SfGrid>
+        }
+            </CardContent>
+    </SfCard>
+}
+else if (currentView == SupplierView.Form)
+{
+    <SfCard CssClass="p-4">
+
+        <div class="text-center mb-3">
+            <h4 class="text-primary">
+                @((supplier.SupplierId == 0 ? "Add New" : "Edit") + " Supplier")
+            </h4>
+        </div>
+
+        <EditForm Model="@supplier" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+               <SfTextBox @bind-Value="supplier.SupplierName"
+                          FloatLabelType="FloatLabelType.Never"
+           Placeholder="Supplier Name" />
+            </div>
+
+            <div class="mb-3">
+                <SfTextBox Placeholder="Mobile Number"
+                           FloatLabelType="FloatLabelType.Never"
+                           @bind-Value="supplier.MobileNo" />
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <SfButton CssClass="e-secondary"
+                          IsPrimary="false"
+                          Type="Submit">
+                    Save
+                </SfButton>
+
+                <SfButton CssClass="e-primary"
+                          OnClick="ShowList">
+                    Cancel
+                </SfButton>
+            </div>
+        </EditForm>
+
+    </SfCard>
+}
+</div>
+
+@code {
+    private enum SupplierView { List, Form }
+    private SupplierView currentView = SupplierView.List;
+
+    private List<Supplier> suppliers;
+    private Supplier supplier = new Supplier();
+    private bool isLoading = false;
+
+    [Parameter] public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSuppliers();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id > 0)
+        {
+            supplier = await SupplierService.GetSupplier(Id) ?? new Supplier();
+            currentView = SupplierView.Form;
+        }
+    }
+
+    private async Task LoadSuppliers()
+    {
+        isLoading = true;
+        suppliers = await SupplierService.GetSuppliers();
+        isLoading = false;
+    }
+
+    private void ShowAddForm()
+    {
+        supplier = new Supplier();
+        currentView = SupplierView.Form;
+        NavigationManager.NavigateTo("/suppliers/new");
+    }
+
+    private void ShowEditForm(int id)
+    {
+        Id = id;
+        NavigationManager.NavigateTo($"/suppliers/edit/{id}");
+    }
+
+    private void ShowList()
+    {
+        currentView = SupplierView.List;
+        NavigationManager.NavigateTo("/suppliers");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isLoading = true;
+        try
+        {
+            if (supplier.SupplierId == 0)
+            {
+
+                bool status= await SupplierService.AddSupplier(supplier);
+                if (status==true)
+                {
+                   // Snackbar.Add("Supplier saved successfully.", Severity.Success, config => { config.ShowTransitionDuration = 500; config.HideTransitionDuration = 500; config.VisibleStateDuration = 500; });
+				await	ToastService.Success("Supplier saved successfully.");
+                   await LoadSuppliers();
+                    ShowList();
+                }
+                else
+                {
+					await ToastService.Error("Supplier already Exist.");
+                    ShowAddForm();
+                }
+
+            }
+
+            else
+            {
+                bool status= await SupplierService.UpdateSupplier(supplier);
+                if(status==true)
+                {
+					await ToastService.Success("Supplier updated successfully.");
+                    await LoadSuppliers();
+                    ShowList();
+                }
+                else
+                {
+					await ToastService.Error("Supplier already Exist.");
+                    ShowAddForm();
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await ErrorLogger.LogAsync(ex.Message + "-" + ex.InnerException?.Message);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DeleteSupplier(int id)
+    {
+		bool confirmed =await DialogService.ConfirmAsync("Delete Supplier", "Are you sure you want to delete this supplier?");
+        if (confirmed)
+        {
+            await SupplierService.DeleteSupplier(id);
+			await ToastService.Success("Supplier deleted successfully.");
+            await LoadSuppliers();
+        }
+    }
+}
+

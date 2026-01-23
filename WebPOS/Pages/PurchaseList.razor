@@ -1,0 +1,268 @@
+﻿@page "/purchases"
+@using WebPOS.Shared
+@inject PurchaseService PurchaseService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject ToastService ToastService
+@inject DialogService DialogService
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Data
+@using System.Linq
+
+
+
+    <div class="d-flex justify-content-center mt-4">
+
+        <SfCard CssClass="shadow" Style="width:95%; border-block-color:hotpink">
+
+            <div class="e-card-content">
+
+                <!-- ADD NEW PURCHASE BUTTON (TOP RIGHT) -->
+                <div class="d-flex justify-content-end mb-3">
+                    <SfButton CssClass="e-success"
+                              IconCss="e-icons e-plus"
+                              Type="Button"
+                              OnClick="NewPurchase">
+                        Add New Purchase
+                    </SfButton>
+                </div>
+
+                @if (GridData == null)
+                {
+                <SfMessage Severity="MessageSeverity.Info">
+                    No purchases found
+                </SfMessage>
+                }
+                @* else if (!GridData.Any())
+                {
+
+                <div class="d-flex justify-content-center mt-4">
+                    <SfSpinner Visible="true"></SfSpinner>
+                </div>
+                } *@
+                else
+                {
+                    <!-- PURCHASE GRID -->
+                    <SfGrid TValue="PurchaseViewModel"
+                            DataSource="@GridData"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="true"
+                            Width="100%"
+                            Height="300px"
+                            Locale="en-IN">
+
+                        <GridPageSettings PageSize="10" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar" />
+
+                        <GridColumns>
+
+                            <!-- BARCODE -->
+                            <GridColumn HeaderText="Barcode No" Width="120">
+                                <Template Context="context">
+                                    @{
+                                        var row = (PurchaseViewModel)context;
+                                    }
+                                    <SfButton CssClass="e-link"
+                                              Type="Button"
+                                              OnClick="@(() => ShowDetails(row))">
+                                        @row.Barcode
+                                    </SfButton>
+                                </Template>
+                            </GridColumn>
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.PurchaseDate)"
+                                        HeaderText="Purchase Date"
+                                        Type="ColumnType.Date"
+                                        Format="dd-MMM-yyyy"
+                                        Width="150" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.InvoiceNo)"
+                                        HeaderText="Invoice No"
+                                        Width="120" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.SupplierName)"
+                                        HeaderText="Supplier"
+                                        Width="150" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.ShopName)"
+                                        HeaderText="Shop"
+                                        Width="120" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.ProductName)"
+                                        HeaderText="Product"
+                                        Width="150" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.SizeName)"
+                                        HeaderText="Size"
+                                        Width="80"
+                                        TextAlign="TextAlign.Center" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.Qty)"
+                                        HeaderText="Qty"
+                                        Width="80"
+                                        TextAlign="TextAlign.Center" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.SalePrice)"
+                                        HeaderText="Sale Price"
+                                        Format="C2"
+                                        Width="100"
+                                        TextAlign="TextAlign.Right" />
+
+                            <GridColumn Field="@nameof(PurchaseViewModel.TotalAmount)"
+                                        HeaderText="Total Amt"
+                                        Format="C2"
+                                        Width="110"
+                                        TextAlign="TextAlign.Right"
+                                        AllowFiltering="false"
+                                        AllowSearching="false" />
+
+                            <!-- ACTIONS -->
+                            <GridColumn HeaderText="Actions"
+                                        Width="130"
+                                        TextAlign="TextAlign.Center"
+                                        AllowFiltering="false"
+                                        AllowSearching="false">
+                                <Template Context="context">
+                                    @{
+                                        var row = (PurchaseViewModel)context;
+                                    }
+                                    <SfButton CssClass="e-primary e-small me-2"
+                                              IconCss="e-icons e-edit"
+                                              Type="Button"
+                                              OnClick="@(() => EditPurchase(row.Id))" />
+
+                                    <SfButton CssClass="e-danger e-small"
+                                              IconCss="e-icons e-delete"
+                                              Type="Button"
+                                              OnClick="@(() => DeletePurchase(row.Id))" />
+                                </Template>
+                            </GridColumn>
+
+                        </GridColumns>
+
+                        <!-- AGGREGATES -->
+                        <GridAggregates>
+                            <GridAggregate>
+                                <GridAggregateColumns>
+
+                                    <GridAggregateColumn Field="@nameof(PurchaseViewModel.Qty)"
+                                                         Type="AggregateType.Sum">
+                                        <FooterTemplate Context="context">
+                                            @{
+                                                var agg = (AggregateTemplateContext)context;
+                                            }
+                                            <strong>@agg.Sum</strong>
+                                        </FooterTemplate>
+                                    </GridAggregateColumn>
+
+                                    <GridAggregateColumn Field="@nameof(PurchaseViewModel.TotalAmount)"
+                                                         Type="AggregateType.Sum"
+                                                         Format="C2">
+                                        <FooterTemplate Context="context">
+                                            @{
+                                                var agg = (AggregateTemplateContext)context;
+                                            }
+                                            <strong>@agg.Sum</strong>
+                                        </FooterTemplate>
+                                    </GridAggregateColumn>
+
+                                </GridAggregateColumns>
+                            </GridAggregate>
+                        </GridAggregates>
+
+                    </SfGrid>
+                }
+
+            </div>
+        </SfCard>
+
+    </div>
+
+
+
+<BarcodeModel Item="selectedItem" Show="isModalVisible" OnClose="CloseModal" />
+<script>
+    
+</script>
+@code {
+    // private SfGrid<PurchaseViewModel> purchaseGrid;
+    // private string searchTerm = string.Empty;
+    private PurchaseViewModel? selectedItem;
+    private bool isModalVisible = false;
+     private IEnumerable<PurchaseViewModel> GridData = new List<PurchaseViewModel>();
+
+    // private Query GridQuery = new Query();
+
+
+    protected override async void OnInitialized()
+    {
+         GridData = await PurchaseService.GetPurchases();
+
+    }
+    private async Task LoadData()
+    {
+        var result = await PurchaseService.GetPurchases();
+        GridData = result;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ShowDetails(PurchaseViewModel item)
+    {
+        selectedItem = new PurchaseViewModel
+        {
+            Barcode = item.Barcode,
+            ProductName = item.ProductName,
+            SizeName = item.SizeName,
+            Qty = item.Qty
+        };
+        isModalVisible = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+        selectedItem = null;
+    }
+
+    
+
+    private void NewPurchase()
+    {
+        Navigation.NavigateTo("/purchases/new");
+    }
+
+    private void EditPurchase(int id)
+    {
+        Navigation.NavigateTo($"/purchases/edit/{id}");
+    }
+
+    private async Task DeletePurchase(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirmDelete");
+        if (confirmed)
+        {
+            await PurchaseService.DeletePurchase(id);
+ 
+			await ToastService.Success("Purchase deleted successfully.");
+            await LoadData();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+}
+
+
+<style>
+    .border-color{
+        border-block-style: solid;
+        border-block-width: 2px;
+        border-block-color: hotpink;
+    }
+</style>
+

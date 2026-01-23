@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+
+		<!-- 👇 REQUIRED FOR SYNCFUSION STATIC ASSETS -->
+		<StaticWebAssetBasePath>wwwroot</StaticWebAssetBasePath>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="Pages\PurchaseForm - Copy.razor" />
+	  <Content Remove="wwwroot\css\mainlayout.css" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.11" PrivateAssets="all" />
+		<PackageReference Include="MudBlazor" Version="8.10.0" />
+		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="bootstrap" Version="5.3.8" />
+		<PackageReference Include="Syncfusion.Blazor" Version="31.2.15" />
+		<PackageReference Include="Syncfusion.Blazor.Themes" Version="31.2.15" />
+	</ItemGroup>
+
+</Project>

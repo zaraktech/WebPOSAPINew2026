@@ -1,0 +1,38 @@
+﻿@using Syncfusion.Blazor.Notifications
+
+<SfToast @ref="ToastRef"
+         Timeout="3000"
+         ShowCloseButton="true">
+    <ToastPosition X="Right" Y="Top" />
+</SfToast>
+
+@code {
+    private SfToast? ToastRef;
+
+    public async Task ShowSuccess(string message)
+    {
+        await Show("Success", message, "e-toast-success");
+    }
+
+    public async Task ShowError(string message)
+    {
+        await Show("Error", message, "e-toast-danger");
+    }
+
+    public async Task ShowWarning(string message)
+    {
+        await Show("Warning", message, "e-toast-warning");
+    }
+
+    private async Task Show(string title, string message, string cssClass)
+    {
+        if (ToastRef == null) return;
+
+        await ToastRef.ShowAsync(new ToastModel
+        {
+            Title = title,
+            Content = message,
+            CssClass = cssClass
+        });
+    }
+}

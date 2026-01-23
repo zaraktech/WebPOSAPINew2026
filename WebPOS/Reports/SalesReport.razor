@@ -1,0 +1,208 @@
+﻿@page "/sales-report"
+
+@using Syncfusion.Blazor.Grids
+@using WebPOS.ViewModels
+@using WebPOS.Models
+
+@inject SalesService SalesService
+@inject ShopNamesService ShopNamesService
+
+
+
+<!-- 🔵 Bootstrap Card -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="container-fluid">
+            <div class="row align-items-end">
+
+                <!-- Shop selection -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Select Shop</label>
+                    <select class="form-select"
+                            @bind="SelectedShopId">
+                        <option value="">-- Select Shop --</option>
+                        @foreach (var shop in Shops)
+                        {
+                            <option value="@shop.ShopNamesId">@shop.ShopName</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Select Date Range</label>
+
+                    <div class="input-group">
+                        <input type="date" class="form-control"
+                               @bind="StartValue" />
+
+                        <span class="input-group-text">to</span>
+
+                        <input type="date" class="form-control"
+                               @bind="EndValue" />
+                    </div>
+                </div>
+
+                <!-- Filter button -->
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-primary w-100"
+                            style="padding: 10px 0;"
+                            @onclick="FilterSaless">
+                        Filter
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (FilteredSales?.Any() == true)
+{
+    <SfGrid @ref="SalesGrid"  DataSource="@FilteredSales" AllowPaging="true" AllowSorting="true" AllowFiltering="true" AllowGrouping=true>
+           
+        <GridGroupSettings Columns="@(new string[] { "BillNo" })" />
+        <GridColumns>
+            <GridColumn Field="ShopName" HeaderText="ShopName" Width="150"></GridColumn>
+            <GridColumn Field="CustomerName" HeaderText="Customer" Width="150"></GridColumn>
+            <GridColumn Field="BillNo" HeaderText="BillNo" Width="100"></GridColumn>
+            <GridColumn Field="SaleDate" HeaderText="Sales Date" Format="dd-MMM-yyyy" Width="120"></GridColumn>
+            <GridColumn Field="Barcode" HeaderText="Barcode" Width="100"></GridColumn>
+            <GridColumn Field="ProductName" HeaderText="Product" Width="150"></GridColumn>
+            <GridColumn Field="SizeName" HeaderText="Size" Width="80"></GridColumn>
+            <GridColumn Field="Qty" HeaderText="Qty" TextAlign="TextAlign.Right" Width="80"></GridColumn>
+            <GridColumn Field="SellingPrice" HeaderText="Selling Price" Format="C2" TextAlign="TextAlign.Right" Width="100"></GridColumn>
+            <GridColumn Field="TotalAmount" HeaderText="Total Amount" Format="C2" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+        </GridColumns>
+        <GridAggregates>
+            <GridAggregate>
+                <GridAggregateColumns>
+                    <GridAggregateColumn Field="Qty" Type="AggregateType.Sum" />
+                   
+                    <GridAggregateColumn Field="TotalAmount" Type="AggregateType.Sum" />
+                   
+                </GridAggregateColumns>
+            </GridAggregate>
+        </GridAggregates>
+    </SfGrid>
+}
+else if (IsLoaded)
+{
+    <p>No sales found for the selected criteria.</p>
+}
+else
+{
+    <p>Loading sales...</p>
+}
+
+@code {
+    // __define-ocg__
+    private int SelectedShopId;
+
+    private List<SaleViewModel> AllSales = new();
+
+    private List<ShopNames> Shops = new();
+    private bool IsLoaded = false;
+
+    public DateTime? StartValue { get; set; } = DateTime.Now.AddDays(-7);
+    public DateTime? EndValue { get; set; } = DateTime.Now;
+
+    public class SaleGridViewModel
+    {
+        public int SaleId { get; set; }
+        public string CustomerName { get; set; }
+		public string ShopName { get; set; }
+        public int BillNo { get; set; }
+        public DateTime SaleDate { get; set; }
+        public int Barcode { get; set; }
+        public string ProductName { get; set; }
+        public string SizeName { get; set; }
+
+        public int Qty { get; set; }
+        public decimal SellingPrice { get; set; }
+        public decimal TotalAmount => Qty * SellingPrice;
+    }
+
+
+
+    private List<SaleGridViewModel> FilteredSales = new();
+    private SfGrid<SaleGridViewModel> SalesGrid;
+   
+    private async Task FilterSaless()
+    {
+        try
+        {
+            // Load all sales with details
+            AllSales = await SalesService.GetSales();
+            IsLoaded = true;
+
+            if (AllSales == null || AllSales.Count == 0)
+                return;
+
+            // Apply shop/date filters first
+            var from = StartValue ?? DateTime.MinValue;
+            var to = EndValue ?? DateTime.MaxValue;
+
+            var filteredQuery = AllSales.AsQueryable();
+
+            if (SelectedShopId > 0)
+            {
+                filteredQuery = filteredQuery.Where(s =>
+                    s.ShopnameId == SelectedShopId &&
+                    s.SaleDate >= from &&
+                    s.SaleDate <= to);
+            }
+
+            var filteredSales = filteredQuery.ToList();
+
+            // Now flatten the filtered sales into grid-friendly view models
+            FilteredSales = filteredSales
+                .SelectMany(s => s.SaleItems.Select(i => new SaleGridViewModel
+                {
+                    SaleId = s.Id,
+                    CustomerName = s.CustomerName,
+                    SaleDate = s.SaleDate,
+                    BillNo = s.BillNo,
+                    ShopName = i.ShopName,
+                    Barcode = i.Barcode,
+                    ProductName = i.ProductName,
+                    SizeName = i.SizeName,
+                    Qty = i.Qty,            // ✅ use Quantity, not Qty, from your model
+                    SellingPrice = i.SalePrice
+                 
+                }))
+                .ToList();
+
+
+                    await InvokeAsync(async () =>
+          {
+              if (SalesGrid != null)
+              {
+                  // __define-ocg__ collapse after data bind
+                  await SalesGrid.CollapseAllGroupAsync();
+              }
+  });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+
+        var varOcg = new object(); // __define-ocg__ (required variable)
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Shops = await ShopNamesService.GetShopNames();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading shops: {ex.Message}");
+        }
+    }
+}
+
+

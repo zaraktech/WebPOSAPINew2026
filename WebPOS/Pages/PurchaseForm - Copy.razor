@@ -1,0 +1,302 @@
+﻿@page "/purchases/new"
+@page "/purchases/edit/{Id:int}"
+@inject PurchaseService PurchaseService
+@inject SupplierService SupplierService
+@inject ProductService ProductService
+@inject SizeService SizeService
+@inject ShopNamesService ShopNameService
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@using MudBlazor
+
+@* <h3>@(purchase.Id == 0 ? "Add New Purchase" : "Edit Purchase")</h3>
+ *@
+@if (isLoading)
+{
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+}
+else
+{
+    <EditForm Model="@purchase" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- Outer container with fixed width and horizontal margin -->
+        <div class="container my-4">
+            <div class="card shadow rounded">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Purchase Entry</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label>Purchase Date</label>
+                            <InputDate class="form-control" @bind-Value="purchase.PurchaseDate" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Invoice No</label>
+                            <InputText class="form-control" @bind-Value="purchase.InvoiceNo" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Supplier</label>
+                            <InputSelect class="form-control" @bind-Value="purchase.SupplierId">
+                                <option value="0">-- Select Supplier --</option>
+                                @foreach (var sup in suppliers)
+                                {
+                                    <option value="@sup.Id">@sup.SupplierName</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                       @*  <div class="col-md-4"> *@
+                            <label>Product</label>
+                            @* <InputSelect class="form-control" @bind-Value="purchase.ProductId">
+                                <option value="0">-- Select Product --</option>
+                                @foreach (var p in products)
+                                {
+                                    <option value="@p.Id">@p.ProductName</option>
+                                }
+                            </InputSelect> *@
+
+
+                           <MudStack Row Class="justify-space-between mud-width-full">
+    <MudStack Style="width: 300px">
+    
+            <MudAutocomplete @bind-Value="_value"
+                             SearchFunc="Search"
+                        
+                             Label="Products"
+                             Margin="_margin"
+                      
+                            
+                            
+                             Placeholder="@(_placeholder ? "Placeholder" : null)"
+                            
+                             Clearable="_clearable"
+                             Modal="_modal" />
+
+    </MudStack>
+
+    
+</MudStack>
+                            
+                       
+                      
+
+                        <div class="col-md-4">
+                            <label>Size</label>
+                            <InputSelect class="form-control" @bind-Value="purchase.SizesId">
+                                <option value="0">-- Select Size --</option>
+                                @foreach (var s in sizes)
+                                {
+                                    <option value="@s.Id">@s.Description</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Shop Name</label>
+
+                            <InputSelect class="form-control"
+                                         @bind-Value="purchase.ShopNamesId"
+                                         @onchange="OnShopChanged">
+                                <option value="0">-- Select Shop --</option>
+                                @foreach (var sh in shops)
+                                {
+                                    <option value="@sh.Id">@sh.ShopName</option>
+                                }
+                            </InputSelect>
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Barcode</label>
+                            <InputText class="form-control" @bind-Value="purchase.BarcodeText" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Qty</label>
+                            <InputNumber class="form-control" @bind-Value="purchase.Qty" @oninput="CalculateTotal" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Cost Price</label>
+                            <InputNumber class="form-control" @bind-Value="purchase.CostPrice" @oninput="CalculateTotal" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Sale Price</label>
+                            <InputNumber class="form-control" @bind-Value="purchase.SalePrice" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Discount</label>
+                            <InputNumber class="form-control" @bind-Value="purchase.Discount" @oninput="CalculateTotal" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Total Amount</label>
+                            <InputNumber class="form-control" @bind-Value="purchase.TotalAmount" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary" disabled="@isLoading">Save</button>
+                        <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+
+
+
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private PurchaseViewModel purchase = new();
+    private bool isLoading = false;
+
+    private List<Supplier> suppliers = new();
+    private List<Product> products = new();
+    private List<WebPOS.Models.Sizes> sizes = new();
+    private List<ShopNames> shops = new();
+    private string selectedProductName;
+
+    private string _value;
+    private Margin _margin;
+
+    private bool _disabled;
+    private bool _readonly;
+    private bool _placeholder;
+
+
+    private bool _clearable;
+    private bool _modal = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        suppliers = await SupplierService.GetSuppliers();
+        products = await ProductService.GetProducts();
+        sizes = await SizeService.GetSizes();
+        shops = await ShopNameService.GetShopNames();
+
+        if (Id.HasValue)
+        {
+            purchase = await PurchaseService.GetPurchase(Id.Value);
+        }
+        else
+        {
+            purchase.PurchaseDate = DateTime.Today;
+            purchase.BarcodeText =await GenerateBarcode();
+        }
+
+        isLoading = false;
+
+    }
+
+    private async Task<string> GenerateBarcode()
+    {
+        var purchases = await PurchaseService.GetPurchases();
+        int lastBarcode = 2000;
+
+        var lastPurchase = purchases.LastOrDefault();
+        if (lastPurchase != null && int.TryParse(lastPurchase.Barcode.ToString(), out int parsed))
+        {
+            lastBarcode = parsed + 1;
+        }
+
+        purchase.Barcode = lastBarcode;
+        purchase.BarcodeText = lastBarcode.ToString();
+        return purchase.BarcodeText;
+    }
+
+    private void CalculateTotal(ChangeEventArgs e)
+    {
+        purchase.TotalAmount = (purchase.Qty * purchase.CostPrice) - purchase.Discount;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isLoading = true;
+        try
+        {
+            if (purchase.Id == 0)
+            {
+
+               await GenerateBarcode();
+                try
+                {
+                    await PurchaseService.AddPurchase(purchase);
+                    await JS.InvokeVoidAsync("showSuccessAlert", "Purchase saved successfully.");
+                }
+                catch (Exception ex)
+                {
+                    await JS.InvokeVoidAsync("showErrorAlert", $"Error saving purchase: {ex.Message}");
+                }
+            }
+            else
+            {
+                await PurchaseService.UpdatePurchase(purchase);
+                await JS.InvokeVoidAsync("showSuccessAlert", "Updated saved successfully.");
+            }
+
+        
+            Navigation.NavigateTo("/purchases");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showErrorAlert", $"Error saving purchase: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/purchases");
+    }
+
+
+    private void OnShopChanged(ChangeEventArgs e)
+{
+    if (int.TryParse(e.Value?.ToString(), out var shopId))
+    {
+        purchase.ShopNamesId = shopId;
+        var selectedShop = shops.FirstOrDefault(s => s.Id == shopId);
+      //  purchase.ShopName = selectedShop?.ShopName ?? string.Empty;
+    }
+}
+
+    // public void OnValueChange(ChangeEventArgs<string, Product> args)
+    // {
+    //     var selectedProduct = products.FirstOrDefault(p => p.ProductName == args.Value);
+    //     purchase.ProductId = selectedProduct?.Id ?? 0;
+    // }
+    // private void OnProductChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, Product> args)
+    // {
+    //     var selectedProduct = products.FirstOrDefault(p => p.ProductName == args.Value);
+    //     purchase.ProductId = selectedProduct?.Id ?? 0;
+    // }
+
+    private async Task<IEnumerable<string>> Search(string value, CancellationToken token)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5, token);
+
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+        {
+            return products.Select(p => p.ProductName);
+        }
+
+        return products.Where(x => x.ProductName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(x => x.ProductName);
+    }
+    
+}

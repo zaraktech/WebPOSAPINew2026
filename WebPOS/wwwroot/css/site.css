@@ -1,0 +1,125 @@
+﻿
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    color: #212529;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+    .nav-link:hover {
+        background-color: #e9ecef;
+        color: #0d6efd;
+    }
+
+    .nav-link i {
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    .nav-link.active {
+        color: #0d6efd;
+        background-color: #e7f1ff;
+        border-left: 3px solid #0d6efd;
+    }
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding-top: 20px;
+    overflow-x: hidden;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        z-index: 1000;
+        height: calc(100vh - 56px);
+        transform: translateX(-100%);
+    }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .btn-purple {
+        background-color: #a569bd !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+
+        .btn-purple:hover {
+            background-color: #8e44ad !important; /* Slightly darker purple on hover */
+            color: white !important;
+        }
+
+        .btn-purple i {
+            margin-right: 0.5rem; /* Space between icon and text */
+        }
+
+
+
+
+}
+
+
+/* Fix Syncfusion popups hidden behind MudBlazor / Bootstrap containers */
+.e-popup,
+.e-daterangepicker,
+.e-datepicker,
+.e-dialog,
+.e-calendar {
+    z-index: 25000 !important;
+}
+
+/* Ensure popups are not clipped */
+body, .mud-main-content, .mud-container, .sidebar, .main-content {
+    overflow: visible !important;
+    position: static !important;
+}
+
+
+.sidebar-header {
+    padding: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.user-info {
+    margin-top: 10px;
+}
+
+.user-icon {
+    margin-right: 5px;
+}
+
+.sidebar-footer {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    padding: 10px;
+}
+
+.logout-btn {
+    width: 90%;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+}

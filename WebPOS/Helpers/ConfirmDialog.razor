@@ -1,0 +1,56 @@
+﻿@inject DialogService DialogService
+@using Syncfusion.Blazor.Popups
+
+<SfDialog @ref="DialogRef"
+          Width="380px"
+          IsModal="true"
+          ShowCloseIcon="true"
+          Visible="false"
+          Header="@Title"
+          CloseOnEscape="true">
+
+    <DialogTemplates>
+        <Content>
+            <p>@Message</p>
+        </Content>
+    </DialogTemplates>
+
+    <DialogButtons>
+        <DialogButton Content="Yes"
+                      IsPrimary="true"
+                      OnClick="OnYes" />
+        <DialogButton Content="No"
+                      OnClick="OnNo" />
+    </DialogButtons>
+</SfDialog>
+
+@code {
+    private SfDialog? DialogRef;
+    private string Title = string.Empty;
+    private string Message = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        DialogService.OnShow += ShowDialog;
+    }
+
+    private async void ShowDialog(string title, string message)
+    {
+        Title = title;
+        Message = message;
+        await DialogRef!.ShowAsync();
+        StateHasChanged();
+    }
+
+    private async Task OnYes()
+    {
+        DialogService.Confirm();
+        await DialogRef!.HideAsync();
+    }
+
+    private async Task OnNo()
+    {
+        DialogService.Cancel();
+        await DialogRef!.HideAsync();
+    }
+}

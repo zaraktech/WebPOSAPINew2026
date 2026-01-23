@@ -1,0 +1,269 @@
+﻿@page "/sizespage"
+@page "/sizespage/new"
+@page "/sizespage/edit/{Id:int}"
+
+
+@using Syncfusion.Blazor.Spinner
+@using WebPOS.Models
+@inject SizeService SizeService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject ErrorLoggerService ErrorLogger
+@inject ToastService ToastService
+@inject DialogService DialogService
+    
+
+@if (currentView == SizeView.List)
+{
+    <div class="d-flex justify-content-center mt-4">
+        <SfCard CssClass="shadow" Style="width:75%">
+
+
+            <div class="d-flex justify-content-end pt-2 pe-3">
+                <SfButton CssClass="e-primary e-small"
+                          IconCss="e-icons e-plus"
+                          OnClick="ShowAddForm">
+                    Add New Size
+                </SfButton>
+            </div>
+
+            <div class="e-card-content">
+
+                
+
+                @if (sizes == null)
+                {
+                    <div class="d-flex justify-content-center mt-4">
+                        <SfSpinner Visible="true"></SfSpinner>
+                    </div>
+                }
+                else if (!sizes.Any())
+                {
+                    <SfMessage Severity="MessageSeverity.Info">
+                        No sizes found
+                    </SfMessage>
+                }
+                else
+                {
+                    <SfGrid TValue="Sizes"
+                            DataSource="sizes"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="true"
+                            Width="100%">
+
+                        <GridPageSettings PageSize="10" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar" ></GridFilterSettings>
+
+                        <GridColumns>
+
+                            <GridColumn Field="SizeName"
+                                        HeaderText="Size Name"
+                                        Width="200" />
+
+                            <GridColumn HeaderText="Actions"
+                                        Width="160"
+                                        TextAlign="TextAlign.Center">
+                                <Template Context="item">
+                                    @{
+                                        var s = (Sizes)item;
+                                    }
+
+                                    <SfButton CssClass="e-primary e-small me-2"
+                                              IconCss="e-icons e-edit"
+                                              OnClick="@(() => ShowEditForm(s.SizeId))">
+                                        Edit
+                                    </SfButton>
+
+                                    <SfButton CssClass="e-danger e-small"
+                                              IconCss="e-icons e-delete"
+                                              OnClick="@(() => DeleteSize(s.SizeId))">
+                                        Delete
+                                    </SfButton>
+                                </Template>
+                            </GridColumn>
+
+                        </GridColumns>
+                    </SfGrid>
+                }
+            </div>
+
+        </SfCard>
+    </div>
+}
+else if (currentView == SizeView.Form)
+{
+    <div class="d-flex justify-content-center mt-4">
+        <SfCard CssClass="shadow" Style="width:50%">
+
+            <div class="e-card-header bg-primary text-white text-center">
+                <h3 class="mb-0">
+                    @((size.SizeId == 0 ? "Add New" : "Edit") + " Size")
+                </h3>
+            </div>
+
+            <div class="e-card-content">
+
+                <EditForm Model="@size" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <SfTextBox Placeholder="Size Name"
+                                   FloatLabelType="FloatLabelType.Always"
+                                   @bind-Value="size.SizeName" />
+                        <ValidationMessage For="@(() => size.SizeName)" />
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-3">
+
+                        <SfButton CssClass="e-primary"
+                                  IsDisabled="isLoading"
+                                  Type="Submit">
+
+                            @if (isLoading)
+                            {
+                                <SfSpinner CssClass="me-2" Width="16px"></SfSpinner>
+                            }
+                            Save
+                        </SfButton>
+
+                        <SfButton CssClass="e-secondary"
+                                  OnClick="ShowList">
+                            Cancel
+                        </SfButton>
+
+                    </div>
+                </EditForm>
+
+            </div>
+        </SfCard>
+    </div>
+}
+
+@code {
+    private enum SizeView { List, Form }
+    private SizeView currentView = SizeView.List;
+
+    private List<WebPOS.Models.Sizes> sizes;
+    private WebPOS.Models.Sizes size = new WebPOS.Models.Sizes
+        {
+            SizeName = string.Empty
+        };
+    private bool isLoading = false;
+
+    [Parameter] public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSizes();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id > 0)
+        {
+            size = await SizeService.GetSize(Id);
+            currentView = SizeView.Form;
+        }
+        else if (NavigationManager.Uri.EndsWith("/new", StringComparison.OrdinalIgnoreCase))
+        {
+            ShowAddForm();
+        }
+    }
+
+    private async Task LoadSizes()
+    {
+        sizes = await SizeService.GetSizes();
+        StateHasChanged();
+       
+    }
+
+    private void ShowAddForm()
+    {
+        size = new WebPOS.Models.Sizes
+            {
+                SizeName = string.Empty
+            };
+        currentView = SizeView.Form;
+        NavigationManager.NavigateTo("/sizespage/new");
+    }
+
+
+    private void ShowEditForm(int id)
+    {
+        Id = id;
+        NavigationManager.NavigateTo($"/sizespage/edit/{id}");
+    }
+
+    private void ShowList()
+    {
+        currentView = SizeView.List;
+        NavigationManager.NavigateTo("/sizespage");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isLoading = true;
+        try
+        {
+            if (size.SizeId == 0)
+            {
+                bool status=   await SizeService.AddSize(size);
+                if (status == true)
+                {
+                   
+					await ToastService.Success("Size added successfully.");
+                    await LoadSizes();
+                    ShowList();
+                }
+
+            }
+
+            else
+            {
+                bool status = await SizeService.UpdateSize(size);
+
+                if(status ==true )
+                {
+                    await LoadSizes();
+					await ToastService.Success("Size updated successfully.");
+                    ShowList();
+                }
+
+                else
+                {
+                   
+					await ToastService.Warning("Size already exists."); 
+                   // await LoadSizes();
+                    ShowAddForm();
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
+            await ErrorLogger.LogAsync(ex.Message + "-" + ex.InnerException?.Message);
+			await ToastService.Error($"An error occurred while saving the size.\n Error:{ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DeleteSize(int id)
+    {
+		bool confirmed = await DialogService.ConfirmAsync("Delete Size", "Are you sure you want to delete this size?");
+        if (confirmed)
+        {
+            await SizeService.DeleteSize(id);
+            await LoadSizes();
+			await ToastService.Success("Size deleted successfully.");
+        }
+    }
+}
+
+

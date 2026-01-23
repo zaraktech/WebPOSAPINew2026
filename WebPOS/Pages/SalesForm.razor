@@ -1,0 +1,498 @@
+﻿@page "/sales"
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Cards
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Layouts
+@using System.Text.Json
+@using WebPOS.ViewModels
+@inject IJSRuntime JS
+@inject PurchaseService purchaseService
+@inject SalesService salesService
+@inject CustomerService customerService
+@inject SettingsService settingsService
+@inject DialogService DialogService
+@inject ToastService ToastService
+
+<EditForm Model="@salesVM" OnValidSubmit="@SaveSales">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row">
+        <!-- Left: Sales -->
+        <div class="col-md-9">
+            <SfCard CssClass="e-card e-custom-card">
+                <CardContent>
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-md-3 mb-3">
+                            <SfTextBox Placeholder="Scan Barcode or Enter Barcode"
+                                       CssClass="barcode-textbox"
+                                       Value=""
+                                       
+                                       ValueChanged="@ValueChangedHandler"
+                                       FloatLabelType="FloatLabelType.Auto"
+                            >
+                            </SfTextBox>
+                        </div>
+
+                        <div class="col-md-3 ">
+                            <SfTextBox Placeholder="Bill No" Readonly="true"
+                                       CssClass="barcode-textbox"
+                                       Value="@BillNo.ToString()"
+                                    
+                                       FloatLabelType="FloatLabelType.Never"
+                                       TabIndex="-1"
+                                       >
+                            </SfTextBox>
+                        </div>
+
+                        <div class="col-md-3">
+                            <SfDatePicker TValue="DateTime" Format="dd-MMM-yyyy"
+                                          @bind-Value="salesVM.SaleDate"
+                                          Min="@MinDate" Max="@MaxDate"
+                                          TabIndex="-1"
+                            >
+                            </SfDatePicker>
+                        </div>
+                    </div>
+
+                    <!-- Sales Grid -->
+                    <SfGrid DataSource="@saleList" AllowPaging="false" AllowSorting="false"
+                            Width="100%" Height="300px">
+                        <GridColumns>
+                            <GridColumn Field="Barcode" HeaderText="Barcode" Width="100"></GridColumn>
+                            <GridColumn Field="ProductName" HeaderText="Product" Width="125"></GridColumn>
+                            <GridColumn Field="SizeName" HeaderText="Size" Width="75"></GridColumn>
+                            <GridColumn Field="Qty" HeaderText="Qty" Width="65" TextAlign="TextAlign.Right"></GridColumn>
+                            <GridColumn Field="SalePrice" HeaderText="Price" Format="C2" Width="95" TextAlign="TextAlign.Right"></GridColumn>
+                            <GridColumn Field="SalePrice" HeaderText="Total" Format="C2" Width="100" TextAlign="TextAlign.Right"></GridColumn>
+                            <GridColumn Field="Discount" HeaderText="Discount (%)" Width="85" TextAlign="TextAlign.Right"></GridColumn>
+                            <GridColumn Field="DiscountAmt" HeaderText="Dis. Amount" Format="C2" Width="100" TextAlign="TextAlign.Right"></GridColumn>
+                            <GridColumn Field="Amount" HeaderText="Amount" Format="C2" Width="100" TextAlign="TextAlign.Right"></GridColumn>
+                        </GridColumns>
+
+                        <GridAggregates>
+                            <GridAggregate>
+                                <GridAggregateColumns>
+
+                                    <!-- ✅ Sum for DiscountAmt -->
+                                    <GridAggregateColumn Field="DiscountAmt" Type="AggregateType.Sum" Format="C2">
+                                        <FooterTemplate Context="discountContext">
+                                            @{
+                                                var discountAggregate = discountContext as AggregateTemplateContext; // __define-ocg__
+                                            }
+                                            <span style="font-weight:bold; color:darkblue;">
+                                                @String.Format("{0:C2}", discountAggregate?.Sum)
+                                            </span>
+                                        </FooterTemplate>
+                                    </GridAggregateColumn>
+
+                                    <!-- ✅ Sum for Amount -->
+                                    <GridAggregateColumn Field="Amount" Type="AggregateType.Sum" Format="C2">
+                                        <FooterTemplate Context="amountContext">
+                                            @{
+                                                var amountAggregate = amountContext as AggregateTemplateContext;
+                                            }
+                                            <span style="font-weight:bold; color:darkgreen;">
+                                                @String.Format("{0:C2}", amountAggregate?.Sum)
+                                            </span>
+                                        </FooterTemplate>
+                                    </GridAggregateColumn>
+
+                                </GridAggregateColumns>
+                            </GridAggregate>
+                        </GridAggregates>
+
+                    </SfGrid>
+                </CardContent>
+            </SfCard>
+        </div>
+
+        <!-- Right: Customer Info -->
+        <div class="col-md-3">
+            <SfCard>
+                <sfCardHeader>
+                    <sfCardTitle class="px-3 hotpink-text">Customer Info</sfCardTitle>
+                </sfCardHeader>
+                <sfCardContent>
+                    <div class="row g-3 px-3 py-2">
+                        <div class="col-12">
+                            <SfComboBox TValue="string" TItem="Customer"
+                                        DataSource="@Customers"
+                                        Placeholder="Select Mobile No"
+                                        @bind-Value="SelectedMobile"
+                                        AllowFiltering="true" AllowCustom="true"
+                                        PopupHeight="200px"
+                                        FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <ComboBoxEvents TValue="string" TItem="Customer" ValueChange="OnValueChange"></ComboBoxEvents>
+                                <ComboBoxFieldSettings Text="MobileNo" Value="MobileNo"></ComboBoxFieldSettings>
+                            </SfComboBox>
+                        </div>
+
+                        <div class="col-12">
+                            <SfTextBox @bind-Value="salesVM.CustomerName" Placeholder="Customer Name"></SfTextBox>
+                        </div>
+
+                        <div class="col-12">
+                            <SfComboBox TValue="int" TItem="PaymentTypes"
+                                            DataSource="@Payment_Type"
+                                            Placeholder="Select Payment Type"
+                                            @bind-Value="salesVM.PaymentId"
+                                            ShowClearButton="true">
+                                <ComboBoxFieldSettings Text="PaymentType" Value="PaymentId"></ComboBoxFieldSettings>
+                            </SfComboBox>
+
+                             
+
+
+
+                        </div>
+
+                        <div class="col-12">
+                            <label class="hotpink-text">Amount Received</label>
+                            <SfNumericTextBox TValue="double" @bind-Value="AmountReceived" ShowSpinButton="false" Placeholder="Amount Received">
+                                <NumericTextBoxEvents TValue="double" ValueChange="@OnAmountReceivedChanged"></NumericTextBoxEvents>
+                            </SfNumericTextBox>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="hotpink-text">Difference</label>
+                            <SfNumericTextBox TValue="double" Value="@Difference" Readonly="true" ShowSpinButton="false" Enabled="false"></SfNumericTextBox>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="hotpink-text">Rewards</label>
+                            <SfNumericTextBox TValue="int" @bind-Value="Rewards" ShowSpinButton="false"></SfNumericTextBox>
+                        </div>
+                        <div class="col-6 d-flex align-items-end">
+                            <SfButton CssClass="e-btn" Style="width:140px;" OnClick="OnRedeemClicked">Redeem</SfButton>
+                        </div>
+
+                        <div class="col-12">
+                            <label  class="hotpink-text">Amount w/o GST</label>
+                            <SfNumericTextBox TValue="double" Value="@TotalAmount" Readonly="true" ShowSpinButton="false" Enabled="false"></SfNumericTextBox>
+                        </div>
+                        <div class="col-6">
+                            <label class="hotpink-text">CGST</label>
+                            <SfNumericTextBox TValue="double" Value="@CGST" Readonly="true" ShowSpinButton="false" Enabled="false"></SfNumericTextBox>
+                        </div>
+                        <div class="col-6">
+                            <label class="hotpink-text">SGST</label>
+                            <SfNumericTextBox TValue="double" Value="@SGST" Readonly="true" ShowSpinButton="false" Enabled="false"></SfNumericTextBox>
+                        </div>
+                        <div class="col-12">
+                            <label class="hotpink-text">Amount with GST</label>
+                            <SfNumericTextBox TValue="double" Value="@TotalAmountGST" ShowSpinButton="false" Readonly="true" Enabled="false"></SfNumericTextBox>
+                        </div>
+                    </div>
+                </sfCardContent>
+            </SfCard>
+
+            <div class="text-center pt-2">
+                <SfButton CssClass="e-success" Type="Submit">Save</SfButton>
+                <SfButton CssClass="e-info">Print</SfButton>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string barcodeText=string.Empty;
+
+
+    public List<SaleItemViewModel> saleList = new();
+    public SaleViewModel salesVM = new();
+    public DateTime MinDate { get; set; } = DateTime.Now.AddYears(-1);
+    public DateTime MaxDate { get; set; } = DateTime.Now;
+    public int BillNo { get; set; }
+    private List<Customer> Customers = new();
+    private List<PaymentTypes> Payment_Type = new();
+
+    private string SelectedMobile { get; set; } = string.Empty;
+    private string SelectedPaymentType { get; set; }=string.Empty;
+    // private List<string> PaymentTypes = new() { "Cash", "Card", "UPI" };
+
+    private double AmountReceived { get; set; }
+    private double Difference { get; set; }
+    private int Rewards { get; set; }
+    private double Redeem { get; set; }
+    private double CGST { get; set; }
+    private double SGST { get; set; }
+    private double TotalAmount { get; set; }
+    private double SaleAmount { get; set; }
+    private double TotalAmountGST { get; set; }
+    private double RedeemedAmount { get; set; }
+    public double GSTPercent;
+    public double DiscountPercent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lastBillNo = await salesService.GetLastBillNoAsync();
+        BillNo = lastBillNo + 1;
+        Customers = await customerService.GetCustomers();
+        Payment_Type = await salesService.GetAllPayMentType();
+        var settingvalue = await settingsService.GetSetting("GSTPercent");
+        GSTPercent = double.TryParse(settingvalue?.Value, out double gstResult) ? gstResult : 0;
+
+        var discSetting = await settingsService.GetSetting("DISCOUNT");
+        DiscountPercent = double.TryParse(discSetting?.Value, out double discResult) ? discResult : 0;
+
+      
+
+    }
+
+    private void OnAmountReceivedChanged(Syncfusion.Blazor.Inputs.ChangeEventArgs<double> args)
+    {
+        AmountReceived = args.Value;
+        Difference = TotalAmountGST - AmountReceived;
+        StateHasChanged();
+    }
+
+    private async Task OnValueChange(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, Customer> args)
+    {
+        var customer = Customers.FirstOrDefault(c => c.MobileNo == args.Value);
+        if (customer != null)
+        {
+            salesVM.CustomerName = customer.CustomerName;
+            salesVM.CustomerId = customer.Id;
+        }
+        else
+        {
+            salesVM.CustomerName = string.Empty;
+            salesVM.CustomerId = 0;
+        }
+        await Task.CompletedTask;
+    }
+
+    private void UpdateTotals()
+    {
+        TotalAmount = saleList.Sum(x => (double)x.Amount);
+        SaleAmount = saleList.Sum(x => (double)x.SalePrice);
+        CGST = Math.Round(TotalAmount * ((GSTPercent / 2) / 100), 2);
+        SGST = Math.Round(TotalAmount * ((GSTPercent / 2) / 100), 2);
+        TotalAmountGST = TotalAmount + CGST + SGST;
+        Rewards = (int)TotalAmountGST / 100; // 1% Rewards
+        // Update difference if amount received is set
+        Difference = TotalAmountGST - AmountReceived;
+
+        StateHasChanged();
+    }
+
+    private void OnRedeemClicked()
+    {
+        RedeemedAmount = Rewards;
+        //Rewards = 0;
+        StateHasChanged();
+    }
+
+    private async Task SaveSales()
+    {
+        try
+        {
+            // Validate required data before saving
+            if (saleList == null || !saleList.Any())
+            {
+
+				await ToastService.Warning("Please add at least one item to the sale.");
+                return;
+            }
+
+            if (salesVM.CustomerId <= 0)
+            {
+                
+				await ToastService.Warning("Please select a customer.");
+                return;
+            }
+
+            // Ensure totals are updated before saving
+            UpdateTotals();
+            salesVM.RewardPoints = Rewards;
+            var sale = new SaleViewModel
+            {
+                BillNo = BillNo,
+                CustomerId = salesVM.CustomerId,
+                CustomerName = salesVM.CustomerName,
+                MobileNo = SelectedMobile, // Add this if needed
+                SaleDate = salesVM.SaleDate,
+                RewardPoints =salesVM.RewardPoints,
+                GSTPercent = salesVM.GSTPercent,
+			    
+                SaleItems = saleList,
+                                
+                PaymentId = salesVM.PaymentId, // Add this if your model has it
+                AmountReceived = AmountReceived // Convert if needed
+            };
+          
+			var result = await salesService.AddSaleAsync(sale);
+
+            if (result)
+            {
+                await ResetFormAfterSave();
+              
+				await ToastService.Success("Sale saved successfully!");
+            }
+            else
+            {
+          
+				await ToastService.Error("Failed to save sale. Please try again."); 
+            }
+        }
+        catch (Exception ex)
+        {
+          
+			await ToastService.Error("An error occurred while saving the sale.");
+            // Consider logging the exception
+            Console.WriteLine($"SaveSales error: {ex}");
+        }
+    }
+
+    private async Task ResetFormAfterSave()
+    {
+        try
+        {
+            // Clear sale items
+            saleList.Clear();
+
+            // Reset sales view model
+            salesVM = new SaleViewModel
+            {
+                SaleDate = DateTime.Now // Keep current date for new sale
+            };
+
+            // Get next bill number
+            var lastBillNo = await salesService.GetLastBillNoAsync();
+            BillNo = lastBillNo + 1;
+
+            // Reset payment fields
+            AmountReceived = 0;
+            Difference = 0;
+            Rewards = 0;
+            RedeemedAmount = 0;
+
+            // Reset customer selection
+            SelectedMobile = string.Empty;
+            SelectedPaymentType = string.Empty;
+
+            // Clear barcode
+            barcodeText = string.Empty;
+
+            // Update UI totals
+            UpdateTotals();
+
+            // Force UI refresh
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ResetForm error: {ex}");
+        }
+    }
+
+    private async Task ValueChangedHandler(string args)
+    {
+        barcodeText = args;
+        if (!string.IsNullOrWhiteSpace(barcodeText))
+        {
+            try
+            {
+                var data = await purchaseService.GetBarcodePurchase(int.Parse(barcodeText));
+                if (data != null)
+                {
+                    // Create SaleItemViewModel from PurchaseViewModel
+                    var saleItem = new SaleItemViewModel
+                    {
+                        Barcode = data.Barcode,
+                        ProductId = data.ProductId,
+                        ProductName = data.ProductName,
+                        SizeId = data.SizeId,
+                        SizeName = data.SizeName,
+                        Qty = 1,
+                        SalePrice = data.SalePrice,
+                        Discount = data.Discount,
+                        ShopnameId = data.ShopNamesId
+                    };
+
+                    // Calculate amounts
+                    decimal lineTotal = saleItem.Qty * saleItem.SalePrice;
+                    saleItem.DiscountAmt = lineTotal * (saleItem.Discount / 100);
+                    saleItem.Amount = lineTotal - saleItem.DiscountAmt;
+                   // saleItem.TotalAmount = saleItem.Amount;
+					saleItem.SalePrice = data.SalePrice;
+
+                    // Add to sale list
+                    saleList.Add(saleItem);
+                    saleList = saleList.ToList();
+                    // Update totals and clear barcode
+                    UpdateTotals();
+                  
+                    barcodeText = string.Empty;
+                }
+                else
+                {
+                   
+					await ToastService.Warning($"Product with barcode {barcodeText} not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                
+				await ToastService.Error("An error occurred while processing the barcode.");
+            }
+
+            StateHasChanged();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+<style>
+    /* __define-ocg__ Custom grid header style */
+    .e-grid .e-headercell {
+        background-color: #ff4081 !important; /* Header background color */
+        color: white !important; /* Header text color */
+        font-size: 10px !important; /* Header font size */
+        font-weight: bold; /* Make text bold */
+        text-align: center;
+    }
+
+    .barcode-textbox input.e-input {
+        font-size: 22px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .barcode-textbox .e-float-text {
+        font-size: 12px;
+    }
+    /* Normal */
+    .barcode-textbox .e-input-group {
+        border-color: #BDBDBD;
+    }
+
+        /* Hover */
+        .barcode-textbox .e-input-group:hover {
+            border-color: #42A5F5;
+        }
+
+    /* Focus */
+    .barcode-textbox.e-input-focus .e-input-group {
+        border-color: #2E7D32;
+    }
+
+    .hotpink-text {
+        color: #ff4081;
+       
+    }
+    
+</style>

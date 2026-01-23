@@ -1,0 +1,117 @@
+﻿@using WebPOS.Shared
+@inherits LayoutComponentBase
+@using MudBlazor
+
+@if (Show && Item is not null)
+{
+    <MudOverlay Visible="true" ZIndex="2000" Class="d-flex justify-center align-center" Style="background-color: rgba(0,0,0,0.5);">
+        <MudPaper Elevation="24" Class="p-4" Style="width: 400px; max-width: 100%;">
+            <MudStack Spacing="2">
+                <MudStack Direction="Row" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+                    <MudText Typo="Typo.h6" Color="Color.Primary">Barcode Details</MudText>
+                   
+                </MudStack>
+
+                <MudDivider />
+
+                <MudText><b>Barcode:</b> @Item.Barcode</MudText>
+                <MudText><b>Product:</b> @Item.ProductName</MudText>
+                <MudText><b>Size:</b> @Item.SizeName</MudText>
+
+                <MudNumericField T="int" Label="Qty" Variant="Variant.Outlined" @bind-Value="Item.Qty" />
+
+                <MudDivider />
+
+                <MudStack Direction="Row" Justify="Justify.FlexEnd" Spacing="1">
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="CloseModal">Close</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print">Print</MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudOverlay>
+}
+
+@code {
+    [Parameter] public PurchaseViewModel? Item { get; set; }
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task CloseModal()
+    {
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
+    }
+
+    private void Print()
+    {
+        // implement your print logic here
+        CloseModal();
+    }
+}
+
+
+
+@* @using WebPOS.Shared
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+
+@if (Show && Item is not null)
+{
+    <SfDialog Width="400px" IsModal="true" ShowCloseIcon="true" Visible="true" ZIndex="2000"
+              Header="Barcode Details"
+              @ref="BarcodeDialog"
+              
+             >
+
+        <DialogTemplates>
+            <Content>
+                <div style="margin-bottom:10px;">
+                    <b>Barcode:</b> @Item.Barcode
+                </div>
+                <div style="margin-bottom:10px;">
+                    <b>Product:</b> @Item.ProductName
+                </div>
+                <div style="margin-bottom:10px;">
+                    <b>Size:</b> @Item.SizeName
+                </div>
+                <div style="margin-bottom:10px;">
+                    <SfNumericTextBox TValue="int" @bind-Value="Item.Qty" Placeholder="Qty"></SfNumericTextBox>
+                </div>
+            </Content>
+
+           
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton CssClass="e-flat" OnClick="CloseModal">Close</DialogButton>
+            <DialogButton CssClass="e-primary" OnClick="Print">Print</DialogButton>
+        </DialogButtons>
+    </SfDialog>
+}
+
+@code {
+    [Parameter] public PurchaseViewModel? Item { get; set; }
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private SfDialog BarcodeDialog;
+
+    private async Task CloseModal()
+    {
+        Show = false;
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
+    }
+
+    private void OnOverlayClick(object args)
+    {
+        CloseModal();
+    }
+
+    private void Print()
+    {
+        // Your print logic here
+        CloseModal();
+    }
+}
+ *@

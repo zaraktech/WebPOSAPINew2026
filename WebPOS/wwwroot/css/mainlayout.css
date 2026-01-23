@@ -1,0 +1,44 @@
+﻿.sidebar-header {
+    padding: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.user-info {
+    margin-top: 8px;
+    color: #616161;
+    font-size: 14px;
+}
+
+.sidebar-list .e-list-item {
+    padding: 14px 18px !important;
+    font-size: 15px;
+}
+
+    .sidebar-list .e-list-item:hover {
+        background-color: #e8f0fe !important;
+    }
+
+.logout-btn {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    background: #d9534f;
+    color: white;
+    border-radius: 6px;
+}
+
+.sidebar-footer {
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    text-align: center;
+}
+
+.topbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.main-content {
+    padding: 20px;
+}

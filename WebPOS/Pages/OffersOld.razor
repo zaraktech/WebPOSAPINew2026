@@ -1,0 +1,256 @@
+﻿@page "/offersold"
+
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Notifications
+
+@using WebPOS.ViewModels
+@inject OffersService OfferService
+
+<SfCard CssClass="shadow p-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <SfButton CssClass="e-primary"
+                  IconCss="e-icons e-plus"
+                  OnClick="ShowAddForm">
+            Add Offer
+        </SfButton>
+    </div>
+
+    <SfGrid TValue="OfferViewModel"
+            DataSource="OfferList"
+            AllowPaging="true"
+            AllowSorting="true"
+            Width="100%">
+
+        <GridPageSettings PageSize="10" />
+
+        <GridColumns>
+
+            <GridColumn Field="ProductName" HeaderText="Product" Width="180" />
+            <GridColumn Field="Barcode" HeaderText="Barcode" Width="140" />
+            <GridColumn Field="MRP" HeaderText="MRP" Format="C2" Width="120" />
+            <GridColumn Field="OfferPrice" HeaderText="Offer Price" Format="C2" Width="130" />
+
+            <!-- ACTIVE -->
+            <GridColumn HeaderText="Active" Width="100">
+                <Template Context="item">
+                    @{
+                        var offer = (OfferViewModel)item;
+                    }
+
+                    <SfSwitch TValue="bool"
+                              Checked="offer.IsActive"
+                              CheckedChanged="@((bool value) => OnOfferStatusChange(offer, value))" />
+                </Template>
+            </GridColumn>
+
+
+
+            <!-- ACTIONS -->
+            <GridColumn HeaderText="Actions" Width="150">
+                <Template Context="item">
+                    @{
+                        var offer = (OfferViewModel)item;
+                    }
+
+                    <SfButton CssClass="e-small e-info"
+                              IconCss="e-icons e-edit"
+                              OnClick="() => EditOffer(offer)" />
+
+                    <SfButton CssClass="e-small e-danger ms-2"
+                              IconCss="e-icons e-delete"
+                              OnClick="() => DeleteOffer(offer.OfferId)" />
+                </Template>
+            </GridColumn>
+
+        </GridColumns>
+    </SfGrid>
+
+</SfCard>
+
+
+<SfDialog @bind-Visible="IsOfferDialogVisible"
+          Width="400px"
+          IsModal="true"
+          ShowCloseIcon="true"
+          Header="Offer Details">
+
+    <DialogTemplates>
+
+        <Content>
+
+            <EditForm Model="@Offer">
+
+                <SfDropDownList TValue="int"
+                                TItem="ProductLookup"
+                                DataSource="Products"
+                                @bind-Value="Offer.ProductId"
+                                Change="OnProductChanged"
+                                Fields="@(new DropDownListFieldSettings
+                                {
+                                    Value = "ProductId",
+                                    Text = "ProductName"
+                                })" />
+
+                <div class="mt-3">
+                    <SfNumericTextBox TValue="decimal"
+                                      @bind-Value="Offer.OfferPrice"
+                                      Placeholder="Offer Price"
+                                      Min="1" />
+                </div>
+
+                <div class="mt-3">
+                    <SfSwitch TValue="bool"
+                              @bind-Checked="Offer.IsActive"
+                              Label="Offer Active" />
+                </div>
+
+            </EditForm>
+
+        </Content>
+
+        <FooterTemplate>
+            <SfButton CssClass="e-primary" OnClick="SaveOffer">
+                Save
+            </SfButton>
+
+            <SfButton CssClass="e-flat" OnClick="CloseDialog">
+                Cancel
+            </SfButton>
+        </FooterTemplate>
+
+    </DialogTemplates>
+
+</SfDialog>
+
+
+
+<SfToast @ref="ToastRef"
+         Timeout="3000"
+         ShowCloseButton="true"
+        />
+
+@code {
+   private List<OfferViewModel> OfferList = new();
+    private List<ProductLookup> Products = new();
+
+    private OfferViewModel Offer = new();
+    private bool IsOfferDialogVisible;
+
+    private SfToast ToastRef;
+
+    private decimal SelectedMRP;
+
+    // ================= LOAD =================
+    protected override async Task OnInitializedAsync()
+    {
+        Products = await OfferService.GetProductLookups();
+        OfferList = await OfferService.GetOffers();
+    }
+
+    // ================= UI EVENTS =================
+    private void ShowAddForm()
+    {
+        Offer = new OfferViewModel { IsActive = true };
+        SelectedMRP = 0;
+        IsOfferDialogVisible = true;
+    }
+
+    private void EditOffer(OfferViewModel offer)
+    {
+        Offer = new OfferViewModel
+        {
+            OfferId = offer.OfferId,
+            ProductId = offer.ProductId,
+            OfferPrice = offer.OfferPrice,
+            IsActive = offer.IsActive
+        };
+
+        SelectedMRP = offer.SalePrice;
+        IsOfferDialogVisible = true;
+    }
+
+    private async Task SaveOffer()
+    {
+        // ❌ Duplicate offer validation
+        bool duplicate = OfferList.Any(o =>
+            o.ProductId == Offer.ProductId &&
+            o.OfferId != Offer.OfferId);
+
+        if (duplicate)
+        {
+            await ShowToast("Offer already exists for this product", "Warning");
+            return;
+        }
+
+        // ❌ Offer price > MRP
+        if (Offer.OfferPrice > SelectedMRP)
+        {
+            await ShowToast("Offer price cannot be greater than MRP", "Error");
+            return;
+        }
+
+        await OfferService.SaveOffer(Offer);
+        OfferList = await OfferService.GetOffers();
+
+        IsOfferDialogVisible = false;
+        await ShowToast("Offer saved successfully", "Success");
+    }
+
+    private void CloseDialog()
+    {
+        IsOfferDialogVisible = false;
+    }
+
+    private async Task DeleteOffer(int offerId)
+    {
+        await OfferService.DeleteOffer(offerId);
+        OfferList = await OfferService.GetOffers();
+        await ShowToast("Offer deleted", "Success");
+    }
+
+    private async Task OnOfferStatusChange(OfferViewModel offer, bool isActive)
+    {
+        offer.IsActive = isActive;
+
+        try
+        {
+            await OfferService.UpdateStatus(offer.OfferId, isActive);
+        }
+        catch
+        {
+            // rollback if API fails
+            offer.IsActive = !isActive;
+        }
+    }
+
+
+
+    // ================= HELPERS =================
+   private void OnProductChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<int, ProductLookup> args)
+{
+    var product = Products.FirstOrDefault(p => p.ProductId == args.Value);
+    SelectedMRP = product?.CostPrice ?? 0;
+}
+
+
+    private async Task ShowToast(string message, string type)
+    {
+        await ToastRef.ShowAsync(new ToastModel
+        {
+            Content = message,
+            CssClass = type switch
+            {
+                "Success" => "e-toast-success",
+                "Error" => "e-toast-danger",
+                "Warning" => "e-toast-warning",
+                _ => "e-toast-info"
+            }
+        });
+    }
+}

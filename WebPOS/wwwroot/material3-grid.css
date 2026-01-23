@@ -1,0 +1,50 @@
+﻿
+/* Professional font */
+.e-grid {
+    font-family: "Segoe UI", Roboto, Inter, sans-serif;
+    font-size: 14px;
+}
+
+/* Row height */
+.e-grid .e-row {
+    min-height: 38px;
+    background-color: #ffffff; /* clean white */
+}
+
+/* Alternate row */
+.e-grid .e-altrow {
+    background-color: #f7f9fb !important; /* subtle grey-blue */
+}
+
+/* Hover effect */
+.e-grid .e-row:hover .e-rowcell {
+    background-color: #e8f0fe !important; /* light blue hover */
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Selected row */
+.e-grid .e-gridcontent .e-selectionbackground {
+    background-color: #d0e2ff !important; /* professional highlight */
+    color: #000;
+}
+
+/* Header styling */
+    .e-grid .e-headercell {
+        background-color: chocolate !important; /* soft grey header */
+        color: #ffffff !important;
+        font-weight: 600;
+        border-bottom: 1px solid #dcdcdc !important;
+    }
+
+    /* Header hover effect */
+    .e-grid .e-headercell:hover {
+        background-color: #e2e6ea !important;
+    }
+
+/* Grid border */
+.e-grid .e-gridcontent,
+.e-grid .e-gridheader {
+    border-color: #dcdcdc !important;
+}
+
+
