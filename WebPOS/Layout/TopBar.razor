@@ -1,0 +1,86 @@
+@using DevExpress.Blazor
+@using Microsoft.AspNetCore.Components.Web
+
+<!-- ═══════════════════════════ TOPBAR ═══════════════════════════ -->
+<header class="topbar">
+
+    <!-- Left zone: hamburger + breadcrumb title -->
+    <div class="topbar-left">
+        <button class="hamburger-btn" @onclick="OnToggleSidebar" title="Toggle Sidebar">
+            <span class="ham-bar"></span>
+            <span class="ham-bar ham-bar--mid"></span>
+            <span class="ham-bar"></span>
+        </button>
+
+        <div class="page-breadcrumb">
+            <span class="breadcrumb-prefix">WebPOS</span>
+            <span class="breadcrumb-sep">/</span>
+            <span class="page-title">@PageTitle</span>
+        </div>
+    </div>
+
+    <!-- Right zone: clock, notifications, user chip -->
+    <div class="topbar-right">
+
+        <!-- Live clock -->
+        <div class="topbar-clock">
+            <i class="fas fa-clock"></i>
+            <span>@_time</span>
+        </div>
+
+        <!-- Notifications -->
+        <button class="topbar-icon-btn" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="notif-dot"></span>
+        </button>
+
+        <!-- Settings -->
+        <button class="topbar-icon-btn" title="Settings">
+            <i class="fas fa-cog"></i>
+        </button>
+
+        <!-- Divider -->
+        <div class="topbar-vdivider"></div>
+
+        <!-- User chip -->
+        <div class="user-chip">
+            <div class="chip-avatar">A</div>
+            <div class="chip-info">
+                <span class="chip-name">Admin</span>
+                <span class="chip-status">
+                    <span class="status-dot"></span>Online
+                </span>
+            </div>
+            <i class="fas fa-chevron-down chip-arrow"></i>
+        </div>
+    </div>
+</header>
+
+@code {
+    [Parameter] public EventCallback ToggleSidebar { get; set; }
+    [Parameter] public string? PageTitle { get; set; }
+
+    private string _time = string.Empty;
+    private System.Threading.Timer? _timer;
+
+    protected override void OnInitialized()
+    {
+        UpdateTime();
+        _timer = new System.Threading.Timer(_ =>
+        {
+            UpdateTime();
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    void UpdateTime() =>
+        _time = DateTime.Now.ToString("HH:mm:ss");
+
+    async Task OnToggleSidebar()
+    {
+        if (ToggleSidebar.HasDelegate)
+            await ToggleSidebar.InvokeAsync();
+    }
+
+    public void Dispose() => _timer?.Dispose();
+}

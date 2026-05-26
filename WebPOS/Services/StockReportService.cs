@@ -17,8 +17,8 @@ namespace WebPOS.Services
         {
             // __define-ocg__ stock report service call
 
-           var result = await _http.GetFromJsonAsync<List<StockReportViewModel>>("api/StockReport")
-                  ?? new List<StockReportViewModel>();
+            var result = await _http.GetFromJsonAsync<List<StockReportViewModel>>("api/StockReport")
+                   ?? new List<StockReportViewModel>();
 
 
 

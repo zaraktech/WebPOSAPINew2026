@@ -1,0 +1,109 @@
+/* ============================================================
+   MainLayout.razor.css
+   Pure CSS sidebar layout — no DxDrawer dependency
+   ============================================================ */
+
+/* Host must fill its parent (Blazor wrapper div) */
+:host {
+    display: block;
+    height: 100%;
+}
+
+/* ── Root layout shell ─────────────────────────────────────
+   Fixed full-viewport grid:
+     [sidebar 260px] [main flex-1]
+   ─────────────────────────────────────────────────────── */
+.pos-layout {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--pos-bg, #0d0f12);
+    position: fixed;   /* ensures it covers the full viewport regardless of Blazor wrappers */
+    top: 0;
+    left: 0;
+}
+
+/* ── Sidebar ───────────────────────────────────────────── */
+.pos-sidebar {
+    width: 260px;
+    min-width: 260px;
+    height: 100%;
+    flex-shrink: 0;
+    background: var(--pos-surface, #141720);
+    border-right: 1px solid var(--pos-border, #252b3b);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 220ms cubic-bezier(0.4,0,0.2,1),
+                min-width 220ms cubic-bezier(0.4,0,0.2,1),
+                transform 220ms cubic-bezier(0.4,0,0.2,1);
+    z-index: 100;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+}
+
+.pos-sidebar--closed {
+    width: 0 !important;
+    min-width: 0 !important;
+    border-right: none;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+/* ── Overlay (behind open sidebar on mobile) ───────────── */
+.pos-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+    .pos-overlay { display: block; }
+
+    .pos-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+    }
+
+    .pos-sidebar--closed {
+        transform: translateX(-100%);
+        width: 260px !important;
+        min-width: 260px !important;
+    }
+}
+
+/* ── Right side ────────────────────────────────────────── */
+.pos-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--pos-bg, #0d0f12);
+}
+
+/* ── Content / @Body area ──────────────────────────────── */
+.pos-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    background: var(--pos-bg, #0d0f12);
+    /* subtle grid texture */
+    background-image:
+        linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.pos-content::-webkit-scrollbar       { width: 5px; }
+.pos-content::-webkit-scrollbar-track { background: var(--pos-surface, #141720); }
+.pos-content::-webkit-scrollbar-thumb { background: var(--pos-border, #252b3b); border-radius: 4px; }
+.pos-content::-webkit-scrollbar-thumb:hover { background: var(--pos-accent, #f5a623); }

@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
-using WebPOS.Models;
-
+using Shared.Models;
 namespace WebPOS.Services
 {
     public class CustomerService
@@ -12,19 +11,29 @@ namespace WebPOS.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Customer>> GetCustomers()
+        public async Task<List<CustomerMaster>> GetCustomers()
         {
-            return await _httpClient.GetFromJsonAsync<List<Customer>>("api/customers");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<List<CustomerMaster>>("api/CustomerMaster");
+            }
+
+            catch (Exception Ex)
+            {
+                Console.WriteLine(Ex.Message + " " + Ex.InnerException?.Message);
+                return new List<CustomerMaster?>();
+            }
+        }
+            
+
+        public async Task<CustomerMaster> GetCustomer(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<CustomerMaster>($"api/customermaster/{id}");
         }
 
-        public async Task<Customer> GetCustomer(int id)
+        public async Task<bool> AddCustomer(CustomerMaster   customer)
         {
-            return await _httpClient.GetFromJsonAsync<Customer>($"api/customers/{id}");
-        }
-
-        public async Task<bool> AddCustomer(Customer customer)
-        {
-            var response = await _httpClient.PostAsJsonAsync("api/customers", customer);
+            var response = await _httpClient.PostAsJsonAsync("api/customermaster", customer);
 
             if (response.IsSuccessStatusCode)
             {
@@ -41,9 +50,9 @@ namespace WebPOS.Services
             }
         }
 
-        public async Task<bool> UpdateCustomer(Customer customer)
+        public async Task<bool> UpdateCustomer(CustomerMaster customer)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/customers/{customer.Id}", customer);
+            var response = await _httpClient.PutAsJsonAsync($"api/customers/{customer.CustomerId}", customer);
             if (response.IsSuccessStatusCode)
             {
                 return true;

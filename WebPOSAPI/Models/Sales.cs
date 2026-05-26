@@ -24,7 +24,7 @@ namespace WebAPI.Models
         public int RewardPoints { get; set; }
         public DateTime SaleDate { get; set; } = DateTime.Now;
 
-     
+
 
 
         // Sale-level calculations

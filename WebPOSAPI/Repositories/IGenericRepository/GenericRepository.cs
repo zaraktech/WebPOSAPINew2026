@@ -17,18 +17,6 @@ namespace WebAPI.Repositories.IGenericRepository
             _logger = logger;
         }
 
-        //public async Task<IEnumerable<T>> GetAllAsync()
-        //{
-        //    try
-        //    {
-        //        return await _db.ToListAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error fetching all {Entity}", typeof(T).Name);
-        //        throw;
-        //    }
-        //}
 
         public async Task<T> GetByIdAsync(int id)
         {
@@ -172,22 +160,24 @@ namespace WebAPI.Repositories.IGenericRepository
             return await query.AnyAsync();
         }
 
-        public async Task<T> GetByBarcodeAsync(int Barcode)
+        public async Task<T> GetByBarcodeAsync(int barcode)
         {
             try
             {
-                var entity = await _db.FindAsync(Barcode);
+                var entity = await _context.Set<T>()
+                    .FirstOrDefaultAsync(e => EF.Property<int>(e, "Barcode") == barcode);
+
                 if (entity == null)
-                    throw new KeyNotFoundException($"{typeof(T).Name} with Barcode={Barcode} not found");
+                    throw new KeyNotFoundException($"{typeof(T).Name} with Barcode={barcode} not found");
+
                 return entity;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching {Entity} by id {Id}", typeof(T).Name, Barcode);
+                _logger.LogError(ex, "Error fetching {Entity} by Barcode {Barcode}", typeof(T).Name, barcode);
                 throw;
             }
         }
-
 
 
     }

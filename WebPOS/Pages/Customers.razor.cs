@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using WebPOS.Models;
+using Shared.Models;
 using WebPOS.Services;
 
 namespace WebPOS.Pages
@@ -9,8 +9,8 @@ namespace WebPOS.Pages
         private enum CustomerView { List, Form }
         private CustomerView currentView = CustomerView.List;
 
-        private List<Customer> customers;
-        private Customer customer = new Customer();
+        private List<CustomerMaster> customers;
+        private CustomerMaster customer = new CustomerMaster();
         private bool isLoading = false;
 
         [Parameter] public int Id { get; set; }
@@ -25,7 +25,7 @@ namespace WebPOS.Pages
         {
             if (Id > 0)
             {
-                customer = await CustomerService.GetCustomer(Id) ?? new Customer();
+                customer = await CustomerService.GetCustomer(Id) ?? new CustomerMaster();
                 currentView = CustomerView.Form;
             }
         }
@@ -40,7 +40,7 @@ namespace WebPOS.Pages
 
         private void ShowAddForm()
         {
-            customer = new Customer();
+            customer = new CustomerMaster();
             currentView = CustomerView.Form;
             NavigationManager.NavigateTo("/customers/new");
         }
@@ -62,7 +62,7 @@ namespace WebPOS.Pages
             isLoading = true;
             try
             {
-                if (customer.Id == 0)
+                if (customer.CustomerId == 0)
                 {
                     bool status = await CustomerService.AddCustomer(customer);
                     if (status == true)

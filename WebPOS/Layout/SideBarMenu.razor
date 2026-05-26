@@ -1,0 +1,126 @@
+@inject NavigationManager NavigationManager
+@using DevExpress.Blazor
+@implements IDisposable
+
+<div class="sidebar">
+
+
+
+    <div class="sidebar-divider"></div>
+
+
+    <!-- TreeView wrapped in flex-grow div -->
+    <div class="treeview-wrapper">
+        <DxTreeView CssClass="pos-treeview"
+                    SelectionMode="TreeViewSelectionMode.Single"
+                    AnimationType="LayoutAnimationType.Slide">
+            <Nodes>
+                @foreach (var item in MenuData)
+                {
+                    @RenderNode(item)
+                }
+            </Nodes>
+        </DxTreeView>
+    </div>
+
+    <!-- Footer user zone -->
+   
+          
+   
+
+</div>
+
+@code {
+    private string _currentUrl = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _currentUrl = NavigationManager.Uri;
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender,
+        Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        _currentUrl = e.Location;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() =>
+        NavigationManager.LocationChanged -= OnLocationChanged;
+
+    RenderFragment RenderNode(MenuItem item) => builder =>
+    {
+        builder.OpenComponent<DxTreeViewNode>(0);
+        builder.AddAttribute(1, "Text", item.Text);
+
+        if (!string.IsNullOrEmpty(item.Url))
+            builder.AddAttribute(2, "NavigateUrl", item.Url);
+
+        builder.AddAttribute(3, "IconCssClass", item.IconCss);
+
+        if (!string.IsNullOrEmpty(item.Url))
+        {
+            var rel = "/" + NavigationManager.ToBaseRelativePath(_currentUrl).TrimStart('/');
+            builder.AddAttribute(4, "Selected",
+                rel.Equals(item.Url, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (item.Items?.Any() == true)
+        {
+            builder.AddAttribute(5, "Nodes", (RenderFragment)(cb =>
+            {
+                int seq = 0;
+                foreach (var child in item.Items!)
+                    cb.AddContent(seq++, RenderNode(child));
+            }));
+        }
+
+        builder.CloseComponent();
+    };
+
+    public class MenuItem
+    {
+        public string Text    { get; set; } = "";
+        public string Url     { get; set; } = "";
+        public string IconCss { get; set; } = "";
+        public List<MenuItem>? Items { get; set; }
+    }
+
+    readonly List<MenuItem> MenuData = new()
+    {
+        new() { Text="Dashboard",    Url="/",      IconCss="fas fa-home" },
+        new()
+        {
+            Text="Masters", IconCss="fas fa-database",
+            Items = new()
+            {
+                new() { Text="Customers", Url="/customers",  IconCss="fas fa-users"  },
+                new() { Text="Suppliers", Url="/suppliers",  IconCss="fas fa-truck"  },
+                new() { Text="Products",  Url="/products",   IconCss="fas fa-box"    },
+                new() { Text="Sizes",     Url="/sizespage",  IconCss="fas fa-ruler"  },
+                new() { Text="Shops",     Url="/shopnames",  IconCss="fas fa-store"  },
+                new() { Text="Offers",    Url="/offers",     IconCss="fas fa-tags"   },
+            }
+        },
+        new()
+        {
+            Text="Transactions", IconCss="fas fa-exchange-alt",
+            Items = new()
+            {
+                new() { Text="Purchases", Url="/purchases", IconCss="fas fa-shopping-cart"  },
+                new() { Text="Sales",     Url="/sales",     IconCss="fas fa-cash-register"  },
+            }
+        },
+        new()
+        {
+            Text="Reports", IconCss="fas fa-chart-bar",
+            Items = new()
+            {
+                new() { Text="Purchase Report", Url="/purchase-report", IconCss="fas fa-file-alt"   },
+                new() { Text="Sales Report",    Url="/sales-report",    IconCss="fas fa-chart-line" },
+                new() { Text="Stock Report",    Url="/stockreport",     IconCss="fas fa-boxes"      },
+            }
+        },
+    };
+}

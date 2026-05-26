@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.DTO;
 using WebAPI.Models;
 using WebAPI.Repositories.IGenericRepository;
 using WebAPI.ViewModels;
+
 
 namespace WebAPI.Controllers
 {
@@ -149,6 +151,30 @@ namespace WebAPI.Controllers
             await _repo.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpPut("UpdateBarcode/{barcode}")]
+
+        public async Task<IActionResult> UpdateBarcode(
+    string barcode,
+    [FromBody] UpdateSalePriceDTO dto)
+        {
+            int lastBarcode = 0;
+            lastBarcode = int.Parse(barcode);
+            var purchase = await _repo.GetByBarcodeAsync(lastBarcode);
+
+            if (purchase == null)
+                return NotFound("Invalid barcode");
+
+            if (dto.SalePrice > purchase.SalePrice)
+                return BadRequest("Sale price cannot be increased");
+
+            purchase.SalePrice = dto.SalePrice;
+
+            await _repo.SaveChangesAsync();
+
+            return Ok();
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

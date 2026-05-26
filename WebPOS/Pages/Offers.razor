@@ -1,238 +1,175 @@
 ﻿@page "/offers"
 
-@using Syncfusion.Blazor
 @using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.DropDowns
-@using Syncfusion.Blazor.Cards
-
+@using Syncfusion.Blazor.Buttons
 @using WebPOS.ViewModels
 
-@inject OffersService OfferService
-@inject DialogService DialogService
+@inject PurchaseService PurchaseService
 @inject ToastService ToastService
+@inject OffersService OfferService
 
-<EditForm Model="@Offer" OnValidSubmit="SaveOffer">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="container-fluid">
 
-    <div class="row">
-     
-        <div class="col-md-8">
-            <SfCard CssClass="e-card shadow">
-               
+    <h4 class="text-primary mb-3">🎯 Batch Offer Update</h4>
 
-                <CardContent>
-                    <div class="d-flex justify-content-end mb-2">
-                        <SfButton CssClass="e-primary"
-                                  IconCss="e-icons e-plus"
-                                  OnClick="ShowAddForm">
-                            Add Offer
-                        </SfButton>
-                    </div>
-
-                    <SfGrid TValue="OfferViewModel"
-                            DataSource="OfferList"
-                            AllowPaging="true"
-                            AllowSorting="true"
-                            Width="100%">
-                        <GridPageSettings PageSize="10" />
-
-                        <GridColumns>
-                            <GridColumn Field="ProductName" HeaderText="Product" Width="180" />
-                            <GridColumn Field="Barcode" HeaderText="Barcode" Width="130" />
-                            <GridColumn Field="MRP" HeaderText="MRP" Format="C2" Width="100" />
-                            <GridColumn Field="OfferPrice" HeaderText="Offer Price" Format="C2" Width="120" />
-
-                            <!-- ACTIVE -->
-                            <GridColumn HeaderText="Active" Width="90" TextAlign="TextAlign.Center">
-                                <Template Context="item">
-                                    @{
-                                        var offerRow = (OfferViewModel)item;
-                                    }
-
-                                    <SfSwitch TValue="bool"
-                                              Checked="offerRow.IsActive"
-                                              CheckedChanged="@((bool v) => OnStatusChange(offerRow, v))" />
-                                </Template>
-                            </GridColumn>
-
-
-                            <!-- ACTIONS -->
-                            <GridColumn HeaderText="Actions" Width="140" TextAlign="TextAlign.Center">
-                                <Template Context="item">
-                                    @{
-                                        var offerRow = (OfferViewModel)item;
-                                    }
-                                    <SfButton CssClass="e-small e-info"
-                                              IconCss="e-icons e-edit"
-                                              OnClick="@(() => EditOffer(offerRow))" />
-                                    <SfButton CssClass="e-small e-danger ms-2"
-                                              IconCss="e-icons e-delete"
-                                              OnClick="@(() => ConfirmDelete(offerRow.OfferId))" />
-                                </Template>
-                            </GridColumn>
-                        </GridColumns>
-                    </SfGrid>
-                </CardContent>
-            </SfCard>
-        </div>
-
-        <!-- RIGHT : OFFER FORM -->
+    <!-- Barcode Scan -->
+    <div class="row mb-3">
         <div class="col-md-4">
-            <SfCard CssClass="e-card shadow">
-                <CardHeader>
-                    <CardTitle>@(Offer.OfferId == 0 ? "Add Offer" : "Edit Offer")</CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                    <div class="mb-3">
-                        <SfDropDownList TValue="int"
-                                        TItem="ProductLookup"
-                                        DataSource="Products"
-                                        Placeholder="Select Product"
-                                        @bind-Value="Offer.ProductId"
-                                        Change="OnProductChanged"
-                                        AllowFiltering="true"
-                                        FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                            <DropDownListFieldSettings Value="ProductId" Text="ProductName" />
-                        </SfDropDownList>
-                    </div>
-
-                    <div class="mb-3">
-                        <SfNumericTextBox TValue="decimal"
-                                          @bind-Value="Offer.OfferPrice"
-                                          Placeholder="Offer Price"
-                                          Min="1"
-                                          ShowSpinButton="false" />
-                    </div>
-
-                    <div class="mb-3">
-                        <SfSwitch TValue="bool"
-                                  @bind-Checked="Offer.IsActive"
-                                  Label="Offer Active" />
-                    </div>
-
-                    <div class="text-center">
-                        <SfButton CssClass="e-success" Type="Submit">Save</SfButton>
-                        <SfButton CssClass="e-flat ms-2" OnClick="ResetForm">Clear</SfButton>
-                    </div>
-                </CardContent>
-            </SfCard>
+            <SfTextBox @ref="BarcodeTextBox"
+                       Placeholder="Scan Barcode"
+                       @bind-Value="ScannedBarcode"
+                       ValueChange="@(async (ChangedEventArgs args) => await OnBarcodeScanned(args))">
+            </SfTextBox>
+        </div>
+        <div class="col-md-8 text-end">
+            <SfButton IconCss="e-icons e-edit" CssClass="e-success" OnClick="UpdateSalePrices">
+                Update
+           </SfButton>
+           
         </div>
     </div>
-</EditForm>
+    
+    <!-- Grid -->
+    <SfGrid @ref="Grid"
+            TValue="OfferViewModel"
+            DataSource="@ScannedList"
+            AllowPaging="false"
+            Width="100%">
+        <GridEditSettings AllowEditing="true"
+                          Mode="EditMode.Normal">
+        </GridEditSettings>
+        <GridColumns>
+           <GridColumn Field="Id"  IsPrimaryKey="true" Visible="false"/> 
 
 
-@code {
+            <GridColumn Field="Barcode" HeaderText="Barcode" Width="130"
+                       
+                        AllowEditing="false" />
+            <GridColumn Field="ShopName" HeaderText="Shop Name" Width="130"
+                     
+                        AllowEditing="false" />
+            <GridColumn Field="ProductName" HeaderText="Product" Width="120"
+                AllowEditing="false"/>
 
-    // __define-ocg__ state variables
-    private List<OfferViewModel> OfferList = new();
-    private List<ProductLookup> Products = new();
+            <GridColumn Field="SizeName" HeaderText="Size" Width="120" 
+                AllowEditing="false"/>
 
-    private OfferViewModel Offer = new();
-    private decimal SelectedMRP;
+            <GridColumn Field="SalePrice"
+                        HeaderText="Sale Price"
+                        Format="C2"
+                        TextAlign="TextAlign.Right"
+                        Width="120"
+                        AllowEditing="false" />
 
-    protected override async Task OnInitializedAsync()
+            <GridColumn Field="OfferPrice"
+                        HeaderText="Offer Price"
+                        Format="C2"
+                        TextAlign="TextAlign.Right"
+                        Width="120"
+                        EditType="EditType.NumericEdit"
+                        CustomAttributes="@(new Dictionary<string, object> { { "class", "offer-green-column" } })" />
+
+        </GridColumns>
+    </SfGrid>
+
+</div>
+
+@code
+{
+
+    private string ScannedBarcode = string.Empty;
+    private SfTextBox BarcodeTextBox;
+    private List<OfferViewModel> ScannedList = new();
+    private SfGrid<OfferViewModel> Grid;
+
+    private async Task OnBarcodeScanned(ChangedEventArgs args)
     {
-        Products = await OfferService.GetProductLookups();
-        OfferList = await OfferService.GetOffers();
-    }
-
-    private void ShowAddForm()
-    {
-        Offer = new OfferViewModel { IsActive = true };
-        SelectedMRP = 0;
-    }
-
-    private void EditOffer(OfferViewModel row)
-    {
-        Offer = new OfferViewModel
-        {
-            OfferId = row.OfferId,
-            ProductId = row.ProductId,
-            OfferPrice = row.OfferPrice,
-            IsActive = row.IsActive
-        };
-
-        SelectedMRP = row.SalePrice;
-    }
-
-    private async Task SaveOffer()
-    {
-        // Duplicate check
-        if (OfferList.Any(o => o.ProductId == Offer.ProductId && o.OfferId != Offer.OfferId))
-        {
-            await ToastService.Warning("Offer already exists for this product");
-            return;
-        }
-
-        // Price validation
-        if (Offer.OfferPrice > SelectedMRP)
-        {
-            await ToastService.Error("Offer price cannot be greater than MRP");
-            return;
-        }
-
-        await OfferService.SaveOffer(Offer);
-        OfferList = await OfferService.GetOffers();
-
-        ResetForm();
-        await ToastService.Success("Offer saved successfully");
-    }
-
-    private void ResetForm()
-    {
-        Offer = new OfferViewModel { IsActive = true };
-        SelectedMRP = 0;
-        StateHasChanged();
-    }
-
-    private async Task ConfirmDelete(int offerId)
-    {
-        var confirmed = await DialogService.ConfirmAsync("Delete","Are you sure you want to delete this offer?");
-        if (!confirmed) return;
-
-        await OfferService.DeleteOffer(offerId);
-        OfferList = await OfferService.GetOffers();
-        await ToastService.Success("Offer deleted");
-    }
-
-    // private async Task OnStatusChange(OfferViewModel offer, bool status)
-    // {
-    //     offer.IsActive = status;
-    //     try
-    //     {
-    //         await OfferService.UpdateStatus(offer.OfferId, status);
-    //     }
-    //     catch
-    //     {
-    //         offer.IsActive = !status;
-    //         await ToastService.Error("Failed to update status");
-    //     }
-    // }
-    private async Task OnStatusChange(OfferViewModel offer, bool isActive)
-    {
-        var previous = offer.IsActive;
-
-        offer.IsActive = isActive; // __define-ocg__
+        var value = args?.Value?.ToString();
 
         try
         {
-            await OfferService.UpdateStatus(offer.OfferId, isActive);
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            if (!int.TryParse(value, out var barcode) || barcode <= 0)
+            {
+                await ToastService.Error("Invalid barcode format");
+                return;
+            }
+
+
+            var purchase = await PurchaseService.GetBarcodePurchase(barcode);
+
+            if (purchase == null)
+            {
+                await ToastService.Error("Barcode not found");
+                return;
+            }
+
+            
+
+            var offer = new OfferViewModel
+            {
+                Id=purchase.Id,
+                Barcode = purchase.Barcode,
+                ProductName = purchase.ProductName,
+                SizeName = purchase.SizeName,
+                SalePrice = purchase.SalePrice,
+                ShopName = purchase.ShopName
+            };
+
+            ScannedList.Add(offer);
+
+            await Grid.Refresh();
+
+            ScannedBarcode = string.Empty;
         }
         catch
         {
-            offer.IsActive = previous; // rollback
-            throw;
+            await ToastService.Error("Something went wrong.");
+        }
+        finally
+        {
+            await BarcodeTextBox.FocusAsync();
         }
     }
 
-
-    private void OnProductChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<int, ProductLookup> args)
+    private async Task UpdateSalePrices()
     {
-        var product = Products.FirstOrDefault(p => p.ProductId == args.Value);
-        SelectedMRP = product?.CostPrice ?? 0;
+        if (!ScannedList.Any())
+        {
+            await ToastService.Warning("No records to update");
+            return;
+        }
+
+        foreach (var item in ScannedList)
+        {
+            var success = await OfferService.UpdateBarcodeAsync(
+                item.Barcode,
+                item.OfferPrice);
+
+            if (!success)
+            {
+                await ToastService.Error($"Failed for barcode {item.Barcode}");
+                return;
+            }
+        }
+
+        await ToastService.Success("Sale prices updated successfully");
+
+        await Grid.Refresh();
     }
 }
+<style>
+    /* Apply only to table body cells (td) */
+    .e-grid .e-rowcell.offer-green-column {
+        background-color: #d4edda !important;
+    }
+
+    
+    /* Optional: Keep header untouched explicitly */
+    .e-grid th.offer-green-column {
+        background-color: #ff4789
+    }
+</style>

@@ -35,7 +35,7 @@ namespace WebAPI.Models
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd(); // Ensure auto-increment
 
-                
+
                 entity.HasMany(s => s.SaleItems)
                       .WithOne(si => si.Sale)
                       .HasForeignKey(si => si.SaleId)
@@ -45,7 +45,7 @@ namespace WebAPI.Models
             builder.Entity<StockViewModel>()
                 .HasNoKey();
 
-           
+
 
             builder.Entity<SaleItems>()
     .HasOne(s => s.Sizes)

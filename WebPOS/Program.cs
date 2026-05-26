@@ -14,7 +14,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("http://localhost:5056/")
+    BaseAddress = new Uri("https://localhost:7079/")
 });
 
 
@@ -26,7 +26,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddMudServices();
-
+builder.Services.AddDevExpressBlazor();
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0dmWXpdcHdRRmRUUE91Xg==");
 builder.Services.AddSyncfusionBlazor();

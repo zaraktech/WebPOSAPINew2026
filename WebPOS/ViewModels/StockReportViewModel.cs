@@ -3,7 +3,7 @@
     public class StockReportViewModel
     {
         public string ShopName { get; set; } = string.Empty;
-        public int Barcode { get; set; } = 0; 
+        public int Barcode { get; set; } = 0;
         public string ProductName { get; set; } = string.Empty;
         public string Size { get; set; } = string.Empty;
 

@@ -1,6 +1,4 @@
-﻿using WebPOS.Models;
-
-namespace WebPOS.ViewModels
+﻿namespace WebPOS.ViewModels
 {
     public class SaleItemViewModel
     {

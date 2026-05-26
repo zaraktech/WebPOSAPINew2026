@@ -1,8 +1,6 @@
-﻿using MudBlazor;
-
-namespace WebPOS.Services
+﻿namespace WebPOS.Services
 {
-    public class DialogService 
+    public class DialogService
     {
         private TaskCompletionSource<bool>? _tcs;
 

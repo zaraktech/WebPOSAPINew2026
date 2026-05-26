@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Models;
 
@@ -13,8 +12,8 @@ namespace WebAPI.Controllers
 
         public StockReportController(AppDBContext dBContext)
         {
-                
-            _context = dBContext;   
+
+            _context = dBContext;
         }
 
 
@@ -25,7 +24,7 @@ namespace WebAPI.Controllers
             var result = await _context.StockReport
                 .FromSqlRaw(
                     "EXEC usp_GetStockReport"
-              
+
                 )
                 .AsNoTracking()
                 .ToListAsync();

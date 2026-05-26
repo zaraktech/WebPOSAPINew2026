@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WebPOS.Models;
-
-namespace WebPOS.ViewModels
+﻿namespace WebPOS.ViewModels
 {
     public class SalesViewModelData
     {
@@ -26,13 +22,13 @@ namespace WebPOS.ViewModels
         public double TotalAmountGST { get; set; }
 
 
-      
+
         public int SaleItemId { get; set; }
 
-      
+
         public int SaleId { get; set; }
 
-     
+
         public int ProductId { get; set; }
 
         public string Product { get; set; }

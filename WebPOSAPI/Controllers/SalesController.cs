@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Configuration;
 using WebAPI.Helpers;
 using WebAPI.Models;
 using WebAPI.Repositories.IGenericRepository;
 using WebAPI.ViewModels;
-using WebPOSAPI.Migrations;
 using Settings = WebAPI.Models.Settings;
 
 namespace WebAPI.Controllers
@@ -16,7 +14,7 @@ namespace WebAPI.Controllers
     public class SalesController : ControllerBase
     {
         private readonly IGenericRepository<Sales> _repo;
-        private readonly IGenericRepository<Settings>  settings;
+        private readonly IGenericRepository<Settings> settings;
         private readonly AppDBContext _context;
 
 
@@ -24,7 +22,7 @@ namespace WebAPI.Controllers
         private readonly ILogger<SalesController> _logger;
         private readonly IMapper _mapper;
 
-        public SalesController(IGenericRepository<Sales> repo, ILogger<SalesController> logger, IMapper mapper, IGenericRepository<Settings> genericsettings,AppDBContext appDBContext)
+        public SalesController(IGenericRepository<Sales> repo, ILogger<SalesController> logger, IMapper mapper, IGenericRepository<Settings> genericsettings, AppDBContext appDBContext)
         {
             _repo = repo;
             _logger = logger;
@@ -38,7 +36,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-     
+
         public async Task<IActionResult> GetAll()
         {
             try
@@ -58,8 +56,8 @@ namespace WebAPI.Controllers
                     SaleDate = s.SaleDate,
                     RewardPoints = s.RewardPoints,
                     GSTPercent = (double)s.GSTPercent,
-                   
-                    
+
+
 
                     // Map nested SaleItems → SaleItemViewModel
                     SaleItems = s.SaleItems?.Select(i => new SaleItemViewModel
@@ -69,7 +67,7 @@ namespace WebAPI.Controllers
                         Barcode = i.Barcode,
                         ProductId = i.ProductId,
                         ProductName = i.Product != null ? i.Product.ProductName : string.Empty,
-                       
+
                         SizeId = i.SizeId,
                         SizeName = i.Sizes != null ? i.Sizes.SizeName : string.Empty,
                         Qty = i.Qty,
@@ -77,7 +75,7 @@ namespace WebAPI.Controllers
                         Discount = i.Discount,
                         DiscountAmt = i.DiscountAmount,
                         Amount = i.AmountAfterDiscount,
-                      
+
                     }).ToList() ?? new List<SaleItemViewModel>()
                 }).ToList();
 
@@ -141,13 +139,13 @@ namespace WebAPI.Controllers
      .FirstOrDefaultAsync(s => s.KeyName == "ShopName");
 
                 var shopName = DbValueHelper.GetColumnValue(setting, "KeyValue");
-                var shopnameids=_context.ShopNames.FirstOrDefault(s=>s.ShopName== Convert.ToString( shopName));
-               
+                var shopnameids = _context.ShopNames.FirstOrDefault(s => s.ShopName == Convert.ToString(shopName));
+
 
                 // Ensure ShopName is not null or empty
-                
+
                 var sales = _mapper.Map<Sales>(model);
-               await _repo.AddAsync(sales);
+                await _repo.AddAsync(sales);
                 //await _repo.SaveChangesAsync();
 
                 try

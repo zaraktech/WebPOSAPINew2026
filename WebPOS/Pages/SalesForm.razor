@@ -8,6 +8,8 @@
 @using Syncfusion.Blazor.Layouts
 @using System.Text.Json
 @using WebPOS.ViewModels
+
+@using global::Shared.Models
 @inject IJSRuntime JS
 @inject PurchaseService purchaseService
 @inject SalesService salesService
@@ -119,7 +121,7 @@
                 <sfCardContent>
                     <div class="row g-3 px-3 py-2">
                         <div class="col-12">
-                            <SfComboBox TValue="string" TItem="Customer"
+                            <SfComboBox TValue="string" TItem="CustomerMaster"
                                         DataSource="@Customers"
                                         Placeholder="Select Mobile No"
                                         @bind-Value="SelectedMobile"
@@ -207,7 +209,7 @@
     public DateTime MinDate { get; set; } = DateTime.Now.AddYears(-1);
     public DateTime MaxDate { get; set; } = DateTime.Now;
     public int BillNo { get; set; }
-    private List<Customer> Customers = new();
+    private List<CustomerMaster> Customers = new();
     private List<PaymentTypes> Payment_Type = new();
 
     private string SelectedMobile { get; set; } = string.Empty;
@@ -255,8 +257,8 @@
         var customer = Customers.FirstOrDefault(c => c.MobileNo == args.Value);
         if (customer != null)
         {
-            salesVM.CustomerName = customer.CustomerName;
-            salesVM.CustomerId = customer.Id;
+            salesVM.CustomerName = customer.Customer;
+            salesVM.CustomerId = customer.CustomerId;
         }
         else
         {

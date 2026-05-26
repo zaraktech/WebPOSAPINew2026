@@ -109,7 +109,7 @@ body, .mud-main-content, .mud-container, .sidebar, .main-content {
 }
 
 .sidebar-footer {
-    position: absolute;
+  
     bottom: 20px;
     width: 100%;
     padding: 10px;
@@ -122,4 +122,48 @@ body, .mud-main-content, .mud-container, .sidebar, .main-content {
     border: none;
     padding: 8px;
     border-radius: 6px;
+}
+
+
+.app-container {
+    height: 100vh;
+}
+
+.app-drawer {
+    height: 100%;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: gray;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.content-area {
+    padding: 20px;
+}
+
+.topbar {
+    border-bottom: 1px solid #eee;
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

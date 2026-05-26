@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Models;
 using WebAPI.ViewModels;
@@ -21,22 +20,22 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<List<ProductLookUp>>> GetProductLookup()
         {
             var products = await _context.Products
-               
+
                 .Select(p => new ProductLookUp
                 {
                     ProductId = p.ProductId,
                     ProductName = p.ProductName,
-                   
-                  CostPrice= _context.Purchases
+
+                    CostPrice = _context.Purchases
                                     .Where(pr => pr.ProductId == p.ProductId)
                                     .OrderByDescending(pr => pr.Id)
                                     .Select(pr => pr.CostPrice)
                                     .FirstOrDefault(),
-                  Barcode= _context.Purchases
+                    Barcode = _context.Purchases
                                     .Where(pr => pr.ProductId == p.ProductId)
                                     .OrderByDescending(pr => pr.Id)
                                     .Select(pr => pr.Barcode)
-                                    .FirstOrDefault(),  
+                                    .FirstOrDefault(),
                 })
                 .OrderBy(p => p.ProductName)
                 .ToListAsync();
@@ -142,6 +141,8 @@ namespace WebAPI.Controllers
 
             return Ok();
         }
+
+
 
     }
 }

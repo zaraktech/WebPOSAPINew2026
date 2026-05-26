@@ -195,7 +195,7 @@
             return;
         }
 
-        await OfferService.SaveOffer(Offer);
+        //await OfferService.SaveOffer(Offer);
         OfferList = await OfferService.GetOffers();
 
         IsOfferDialogVisible = false;
@@ -209,7 +209,7 @@
 
     private async Task DeleteOffer(int offerId)
     {
-        await OfferService.DeleteOffer(offerId);
+        //await OfferService.DeleteOffer(offerId);
         OfferList = await OfferService.GetOffers();
         await ShowToast("Offer deleted", "Success");
     }
@@ -220,7 +220,7 @@
 
         try
         {
-            await OfferService.UpdateStatus(offer.OfferId, isActive);
+          //  await OfferService.UpdateStatus(offer.OfferId, isActive);
         }
         catch
         {
