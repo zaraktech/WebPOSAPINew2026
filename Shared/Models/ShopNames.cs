@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebPOS.Models
+namespace Shared.Models
 {
     public class ShopNames
     {

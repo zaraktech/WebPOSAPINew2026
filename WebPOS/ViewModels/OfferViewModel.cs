@@ -1,8 +1,8 @@
-﻿using WebPOS.Models;
+﻿using Shared.Models;
 
 namespace WebPOS.ViewModels
 {
-    public class OfferViewModel : PurchaseViewModel
+    public class OfferViewModel 
     {
         public decimal OfferPrice { get; set; }
     }

@@ -14,7 +14,9 @@ namespace APIDBFirst.Repositories
         Task<int> SaveChangesAsync();
         Task<bool> CheckExistsAsync(Expression<Func<T, bool>>? predicate = null);
         // Task<List<Sales>> GetSalesWithDetailsAsync();
-
+    //    Task<(IEnumerable<T> Data, int Count)> GetPagedAsync(
+    //int skip,
+    //int take);
 
     }
 }

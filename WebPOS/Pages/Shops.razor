@@ -1,231 +1,177 @@
 ﻿@page "/shopnames"
-@page "/shopnames/new"
-@page "/shopnames/edit/{Id:int}"
+@using WebPOS.ColumnDefinations
+@using WebPOS.Components
 
-@using WebPOS.Models
-@inject ShopNamesService ShopNamesService
-@inject NavigationManager NavigationManager
-@inject IJSRuntime JS
-@inject ToastService ToastService
-@inject DialogService DialogService
-@inject ErrorLoggerService ErrorLogger
+@using global::Shared.Models
+@inject StoreService storeService
 
-@if (currentView == ShopView.List)
-{
-    <div class="d-flex justify-content-center mt-4">
-        <SfCard CssClass="shadow" Style="width:75%">
+<CrudPage TEntity="TblStore"
+          @ref="crudPage"
+          Items="shopNames"
+          CurrentItem="shopName"
+          CurrentItemChanged="OnCurrentItemChanged"
+          Columns="columnDefinitions"
+          GetId="s => s.StoreID"
+          OnDelete="DeleteShopName">
 
-         
+    <FormTemplate Context="item">
 
-            <div class="e-card-content">
+        <EditForm Model="item"
+                  OnValidSubmit="@(() => HandleValidSubmit(item))">
 
-                <div class="d-flex justify-content-end mb-3">
-                <SfButton CssClass="e-primary mb-3"
-                          IconCss="e-icons e-plus"
-                          OnClick="ShowAddForm">
-                    Add New Shop
-                </SfButton>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="container mt-4">
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+
+                        <SfCard CssClass="shadow" title="Store Info">
+
+                            
+
+                            <CardContent>
+
+                                <div class="row g-4">
+
+                                    <!-- Store -->
+                                    <div class="col-md-6">
+                                       
+                                        <SfTextBox Placeholder="Enter Store Name"
+                                                   FloatLabelType="FloatLabelType.Auto"
+                                                   @bind-Value="shopName.Store">
+                                        </SfTextBox>
+                                    </div>
+
+                                    <!-- Mobile -->
+                                    <div class="col-md-6">
+                                        
+
+                                        <SfTextBox Placeholder="Enter Mobile Number"
+                                                   FloatLabelType="FloatLabelType.Auto"
+                                                   @bind-Value="shopName.MobileNo">
+                                        </SfTextBox>
+                                    </div>
+
+                                    <!-- GST -->
+                                    <div class="col-md-6">
+                                       
+                                        <SfTextBox Placeholder="Enter GST Number"
+                                                   FloatLabelType="FloatLabelType.Auto"
+                                                   @bind-Value="shopName.Gstno">
+                                        </SfTextBox>
+                                    </div>
+
+                                    <!-- GST % -->
+                                    <div class="col-md-6">
+                                        
+
+                                        <SfNumericTextBox TValue="double?"
+                                            FloatLabelType="FloatLabelType.Auto"
+                                                          Placeholder="GST %"
+                                                        Min="0"
+                                                          Max="100"
+                                                          @bind-Value="shopName.Gstpercent">
+                                        </SfNumericTextBox>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="col-12">
+                                       
+
+                                        <SfTextBox Placeholder="Enter Address"
+                                                   Multiline="true"
+                                                   FloatLabelType="FloatLabelType.Auto"
+                                                   @bind-Value="shopName.Address">
+                                        </SfTextBox>
+                                    </div>
+
+                                </div>
+
+                            </CardContent>
+
+                            <CardFooter>
+
+                                <div class="text-end">
+
+                                    <SfButton CssClass="e-primary me-2"
+                                              IconCss="e-icons e-save"
+                                              IsPrimary="true">
+                                        Save
+                                    </SfButton>
+
+                                    <SfButton CssClass="e-outline">
+                                        Clear
+                                    </SfButton>
+
+                                </div>
+
+                            </CardFooter>
+
+                        </SfCard>
+
+                    </div>
                 </div>
 
-                @if (shopNames == null)
-                {
-                    <div class="d-flex justify-content-center mt-4">
-                        <SfSpinner Visible="true"></SfSpinner>
-                    </div>
-                }
-                else if (!shopNames.Any())
-                {
-                    <SfMessage Severity="MessageSeverity.Info">
-                        No shops found
-                    </SfMessage>
-                }
-                else
-                {
-                    <SfGrid TValue="ShopNames"
-                            DataSource="shopNames"
-                            AllowPaging="true"
-                            AllowSorting="true"
-                            AllowFiltering="true"
-                            Width="100%">
-
-                        <GridPageSettings PageSize="10" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar" />
-                        
-                        <GridColumns>
-
-                            <GridColumn Field="ShopName"
-                                        HeaderText="Shop Name"
-                                        Width="250" />
-
-                            <GridColumn HeaderText="Actions"
-                                        Width="160"
-                                        TextAlign="TextAlign.Center">
-                                <Template Context="item">
-                                    @{
-                                        var s = (ShopNames)item;
-                                    }
-
-                                    <SfButton CssClass="e-primary e-small me-2"
-                                              IconCss="e-icons e-edit"
-                                              OnClick="@(() => ShowEditForm(s.ShopNamesId))">
-                                        Edit
-                                    </SfButton>
-
-                                    <SfButton CssClass="e-danger e-small"
-                                              IconCss="e-icons e-delete"
-                                              OnClick="@(() => DeleteShop(s.ShopNamesId))">
-                                        Delete
-                                    </SfButton>
-                                </Template>
-                            </GridColumn>
-
-                        </GridColumns>
-                    </SfGrid>
-                }
             </div>
-        </SfCard>
-    </div>
-}
-else if (currentView == ShopView.Form)
-{
-    <div class="d-flex justify-content-center mt-4">
-        <SfCard CssClass="shadow" Style="width:50%">
 
-            
+        </EditForm>
 
-            <div class="e-card-content">
+    </FormTemplate>
 
-                <EditForm Model="@shop" OnValidSubmit="HandleValidSubmit">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-
-                    <div class="mb-3">
-                        <SfTextBox Placeholder="Shop Name"
-                                   FloatLabelType="FloatLabelType.Always"
-                                   @bind-Value="shop.ShopName" />
-                        <ValidationMessage For="@(() => shop.ShopName)" />
-                    </div>
-
-                    <div class="d-flex justify-content-between mt-3">
-
-                        <SfButton CssClass="e-primary"
-                                  IsDisabled="isLoading"
-                                  Type="Submit">
-
-                            @if (isLoading)
-                            {
-                                <SfSpinner CssClass="me-2" Width="16px"></SfSpinner>
-                            }
-                            Save
-                        </SfButton>
-
-                        <SfButton CssClass="e-secondary"
-                                  OnClick="ShowList">
-                            Cancel
-                        </SfButton>
-
-                    </div>
-                </EditForm>
-
-            </div>
-        </SfCard>
-    </div>
-}
+</CrudPage>
 
 @code {
-    private enum ShopView { List, Form }
-    private ShopView currentView = ShopView.List;
+    private List<TblStore> shopNames = new();
 
-    private List<WebPOS.Models.ShopNames> shopNames;
-    private WebPOS.Models.ShopNames shop = new ShopNames { ShopName=string.Empty};
+    private TblStore? shopName = new();
 
-    private bool isLoading = false;
-
-    [Parameter] public int Id { get; set; }
-
+    private CrudPage<TblStore>? crudPage;
     protected override async Task OnInitializedAsync()
     {
-        await LoadShops();
+        shopNames = await storeService.GetStores();
     }
 
-    protected override async Task OnParametersSetAsync()
+    private List<GridColumnDefinition> columnDefinitions = new List<GridColumnDefinition>
     {
-        if (Id > 0)
-        {
-            shop = await ShopNamesService.GetShopName(Id) ?? new ShopNames{ShopName=string.Empty};
-            currentView = ShopView.Form;
-        }
+
+        new GridColumnDefinition { Field = "Store", Header = "Store Name", Width = "200" },
+        new GridColumnDefinition { Field = "Address", Header = "Address", Width = "200" },
+        new GridColumnDefinition { Field = "MobileNO", Header = "Mobile No", Width = "200" },
+        new GridColumnDefinition { Field = "Gstno", Header = "GST No", Width = "200" },
+        new GridColumnDefinition { Field = "Gstpercent", Header = "GST Percent", Width = "200" }
+
+
+    };
+
+    private Task OnCurrentItemChanged(TblStore shopNames)
+    {
+        shopName = shopNames;
+        return Task.CompletedTask;
     }
 
-    private async Task LoadShops()
+
+    private async Task HandleValidSubmit(TblStore shopNames)
+
     {
+        if (shopNames.StoreID == 0)
+            await storeService.AddStore(shopNames);
+        else
+            await storeService.UpdateStore(shopNames);
 
-        shopNames = await ShopNamesService.GetShopNames();
+        var response = await storeService.GetStores();
 
-        StateHasChanged();
-        await Task.Delay(100);
-        await JS.InvokeVoidAsync("initializeDataTable", "#shopsTable");
+
+        crudPage?.Refresh();
     }
 
-    private void ShowAddForm()
+
+    private async Task DeleteShopName(int id)
     {
-        shop = new ShopNames{ShopName=string.Empty};
-        currentView = ShopView.Form;
-        NavigationManager.NavigateTo("/shopnames/new");
-    }
+        await storeService.DeleteStore(id);
 
-    private void ShowEditForm(int id)
-    {
-        Id = id;
-        NavigationManager.NavigateTo($"/shopnames/edit/{id}");
-    }
+        var response = await storeService.GetStores();
 
-    private void ShowList()
-    {
-        currentView = ShopView.List;
-        NavigationManager.NavigateTo("/shopnames");
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        isLoading = true;
-        try
-        {
-            if (shop.ShopNamesId == 0)
-            {
-                await ShopNamesService.AddShopName(shop);
-                await ToastService.Success("Successfully Added");
-            }
-            else
-            {
-                await ShopNamesService.UpdateShopName(shop);
-                await ToastService.Success("Successfully Updated");
-            }
-            await LoadShops();
-
-            ShowList();
-        }
-        catch (Exception ex)
-        {
-            await ErrorLogger.LogAsync(ex.Message + "-" + ex.InnerException?.Message);
-
-            await ToastService.Error("An error occurred while saving the shop.\n Error:{ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    private async Task DeleteShop(int id)
-    {
-        bool confirmed =await DialogService.ConfirmAsync("Delete Shop"," Are you sure to delete?"); //await JS.InvokeAsync<bool>("confirmDelete");
-        if (confirmed)
-        {
-            await ShopNamesService.DeleteShopName(id);
-      
-			await ToastService.Success("Shop deleted successfully.");
-            await LoadShops();
-        }
     }
 }

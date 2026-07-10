@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-using WebPOS.Models;
+using Shared.Models;
 
 namespace WebPOS.Services
 {
@@ -12,19 +12,19 @@ namespace WebPOS.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<Supplier>> GetSuppliers()
+        public async Task<List<SupplierMaster>> GetSuppliers()
         {
-            return await _httpClient.GetFromJsonAsync<List<Supplier>>("api/suppliers");
+            return await _httpClient.GetFromJsonAsync<List<SupplierMaster>>("api/SupplierMaster");
         }
 
-        public async Task<Supplier> GetSupplier(int id)
+        public async Task<SupplierMaster> GetSupplier(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Supplier>($"api/suppliers/{id}");
+            return await _httpClient.GetFromJsonAsync<SupplierMaster>($"api/SupplierMaster/{id}");
         }
 
-        public async Task<bool> AddSupplier(Supplier supplier)
+        public async Task<bool> AddSupplier(SupplierMaster supplier)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/suppliers", supplier);
+            var response = await _httpClient.PostAsJsonAsync("api/SupplierMaster", supplier);
             if (response.IsSuccessStatusCode)
             {
                 return true;
@@ -38,9 +38,9 @@ namespace WebPOS.Services
             }
         }
 
-        public async Task<bool> UpdateSupplier(Supplier supplier)
+        public async Task<bool> UpdateSupplier(SupplierMaster supplier)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/suppliers/{supplier.SupplierId}", supplier);
+            var response = await _httpClient.PutAsJsonAsync($"api/SupplierMaster/{supplier.SupplierId}", supplier);
             if (response.IsSuccessStatusCode)
             {
                 return true;

@@ -8,6 +8,10 @@ namespace Shared.Models;
 [Table("tblStore")]
 public partial class TblStore
 {
+    [Key]
+    [Column("StoreID")]
+    public int StoreID { get; set; }
+
     [StringLength(50)]
     [Unicode(false)]
     public string Store { get; set; } = null!;

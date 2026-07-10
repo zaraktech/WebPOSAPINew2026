@@ -1,5 +1,6 @@
-﻿using System.Net.Http.Json;
-using WebPOS.Models;
+﻿using Shared.Models;
+using System.Net.Http.Json;
+
 
 namespace WebPOS.Services
 {
@@ -12,19 +13,19 @@ namespace WebPOS.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<List<Sizes>> GetSizes()
+        public async Task<List<SizeMaster>> GetSizes()
         {
-            return await _httpClient.GetFromJsonAsync<List<Sizes>>("api/Sizes");
+            return await _httpClient.GetFromJsonAsync<List<SizeMaster>>("api/SizeMaster");
         }
 
-        public async Task<Sizes> GetSize(int id)
+        public async Task<SizeMaster> GetSize(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Sizes>($"api/Sizes/{id}");
+            return await _httpClient.GetFromJsonAsync<SizeMaster>($"api/SizeMaster/{id}");
         }
 
-        public async Task<bool> AddSize(Sizes item)
+        public async Task<bool> AddSize(SizeMaster item)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Sizes", item);
+            var response = await _httpClient.PostAsJsonAsync("api/SizeMaster", item);
             if (response.IsSuccessStatusCode)
             {
                 return true;
@@ -37,9 +38,9 @@ namespace WebPOS.Services
             }
         }
 
-        public async Task<bool> UpdateSize(Sizes item)
+        public async Task<bool> UpdateSize(SizeMaster itemsize)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/Sizes/{item.SizeId}", item);
+            var response = await _httpClient.PutAsJsonAsync($"api/SizeMaster/{itemsize.SizId}", itemsize);
             if (response.IsSuccessStatusCode)
             {
                 return true;
@@ -54,7 +55,7 @@ namespace WebPOS.Services
 
         public async Task DeleteSize(int id)
         {
-            await _httpClient.DeleteAsync($"api/Sizes/{id}");
+            await _httpClient.DeleteAsync($"api/SizeMaster/{id}");
         }
     }
 }

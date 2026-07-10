@@ -2,10 +2,10 @@
 
 @using Syncfusion.Blazor.Grids
 @using WebPOS.ViewModels
-@using WebPOS.Models
+@using Shared.Models
 
 @inject PurchaseService PurchaseService
-@inject ShopNamesService ShopNamesService
+@inject StoreService ShopNamesService
 
 
 
@@ -23,7 +23,7 @@
                         <option value="">-- Select Shop --</option>
                         @foreach (var shop in Shops)
                         {
-                            <option value="@shop.ShopNamesId">@shop.ShopName</option>
+                            @* <option value="@shop.ShopNamesId">@shop.ShopName</option> *@
                         }
                     </select>
                 </div>
@@ -84,9 +84,9 @@ else
     // __define-ocg__
     private int SelectedShopId;
 
-    private List<PurchaseViewModel> AllPurchases = new();
-    private List<PurchaseViewModel> FilteredPurchases = new();
-    private List<ShopNames> Shops = new();
+    private List<Purchase> AllPurchases = new();
+    private List<Purchase> FilteredPurchases = new();
+    private List<StoreDetail> Shops = new();
     private bool IsLoaded = false;
 
     public DateTime? StartValue { get; set; } = DateTime.Now.AddDays(-7);
@@ -117,10 +117,10 @@ else
             var from = StartValue ?? DateTime.MinValue;
             var to = EndValue ?? DateTime.MaxValue;
 
-            query = query.Where(p =>
-                p.ShopNamesId == SelectedShopId &&
-                p.PurchaseDate >= from &&
-                p.PurchaseDate <= to);
+            // query = query.Where(p =>
+            //     p.Purid == SelectedShopId &&
+            //     p.PurDate >= from &&
+            //     p.PurDate <= to);
         }
 
         FilteredPurchases = query.ToList();
@@ -130,7 +130,7 @@ else
     {
         try
         {
-            Shops = await ShopNamesService.GetShopNames();
+           // Shops = await ShopNamesService.GetShopNames();
         }
         catch (Exception ex)
         {

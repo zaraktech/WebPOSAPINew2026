@@ -1,0 +1,110 @@
+﻿@page "/customers"
+
+@using Microsoft.AspNetCore.Components
+@using Shared.Models
+@using WebPOS.ColumnDefinations
+@using WebPOS.Components
+@using WebPOS.Services
+@inject CustomerService CustomerService 
+<CrudPage TEntity="CustomerMaster"
+          @ref="crudPage"
+          Title="Customers"
+          Items="customers"
+          CurrentItem="customer"
+          CurrentItemChanged="OnCurrentItemChanged"
+          Columns="columns"
+          GetId="c => c.CustomerId"
+          OnDelete="DeleteCustomer">
+
+    <FormTemplate Context="item">
+
+        <EditForm Model="item"
+                  OnValidSubmit="@(() => HandleValidSubmit(item))">
+
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Customer Name</label>
+                <InputText class="form-control"
+                           @bind-Value="item.Customer" />
+            </div>
+
+            <div class="mb-3">
+                <label>Address</label>
+                <InputText class="form-control"
+                           @bind-Value="item.Caddress" />
+            </div>
+
+            <div class="mb-3">
+                <label>City</label>
+                <InputText class="form-control"
+                           @bind-Value="item.City" />
+            </div>
+
+            <div class="mb-3">
+                <label>Telephone</label>
+                <InputText class="form-control"
+                           @bind-Value="item.Telephone" />
+            </div>
+
+            <div class="mb-3">
+                <label>Mobile</label>
+                <InputText class="form-control"
+                           @bind-Value="item.MobileNo" />
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                <InputText class="form-control"
+                           @bind-Value="item.EmailId" />
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                Save
+            </button>
+
+        </EditForm>
+
+    </FormTemplate>
+
+</CrudPage>
+
+
+@code{
+
+ private CrudPage<CustomerMaster>? crudPage;
+
+private List<CustomerMaster> customers = new();
+
+private CustomerMaster customer = new();
+
+private List<GridColumnDefinition> columns =
+[
+    new() { Field = nameof(CustomerMaster), Header = "Customer" },
+    new() { Field = nameof(CustomerMaster.City), Header = "City" },
+    new() { Field = nameof(CustomerMaster.MobileNo), Header = "Mobile" }
+];
+
+private void OnCurrentItemChanged(CustomerMaster item)
+{
+    customer = item;
+}
+
+private async Task HandleValidSubmit(CustomerMaster item)
+{
+    if (item.CustomerId == 0)
+        await CustomerService.AddCustomer(item);
+    else
+        await CustomerService.UpdateCustomer(item);
+
+    customers = await CustomerService.GetCustomers();
+
+    crudPage?.Refresh();
+}
+
+private async Task DeleteCustomer(int id)
+{
+    await CustomerService.DeleteCustomer(id);
+    customers = await CustomerService.GetCustomers();
+}
+                }

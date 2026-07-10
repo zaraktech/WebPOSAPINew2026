@@ -1,0 +1,91 @@
+﻿@page "/sizespage"
+@using WebPOS.ColumnDefinations
+@using WebPOS.Components
+
+@using global::Shared.Models
+@inject SizeService SizeService
+
+<CrudPage TEntity="SizeMaster"
+          @ref="crudPage"
+  
+          Items="sizesMaster"
+          CurrentItem="sizeMaster"
+          CurrentItemChanged="OnCurrentItemChanged"
+          Columns="columnDefinitions"
+          GetId="s => s.SizId"
+          OnDelete="DeleteSize">
+
+    <FormTemplate Context="item">
+
+        <EditForm Model="item"
+                  OnValidSubmit="@(() => HandleValidSubmit(item))">
+
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Szies</label>
+
+                <InputText class="form-control"
+                           @bind-Value="item.Sizes" width="40%" />
+            </div>
+
+           
+            <button type="submit"
+                    class="btn btn-success">
+                Save
+            </button>
+
+        </EditForm>
+
+    </FormTemplate>
+
+</CrudPage>
+
+@code {
+    private List<SizeMaster> sizesMaster = new();
+
+    private SizeMaster? sizeMaster = new();
+
+    private CrudPage<SizeMaster>? crudPage;
+    protected override async Task OnInitializedAsync()
+    {
+        sizesMaster = await SizeService.GetSizes();
+    }   
+
+    private  List<GridColumnDefinition> columnDefinitions = new List<GridColumnDefinition>
+    {
+   
+        new GridColumnDefinition { Field = "Sizes", Header = "Sizes", Width = "200" },
+      
+    };
+
+    private Task OnCurrentItemChanged(SizeMaster ItemSizes)
+    {
+        sizeMaster = ItemSizes;
+        return Task.CompletedTask;
+    }
+
+
+    private async Task HandleValidSubmit(SizeMaster itemSize)
+
+    {
+        if (itemSize.SizId == 0)
+            await SizeService.AddSize(itemSize);
+        else
+            await SizeService.UpdateSize(itemSize);
+
+        var response = await SizeService.GetSizes();
+
+
+        crudPage?.Refresh();
+    }
+
+
+    private async Task DeleteSize(int id)
+    {
+        await SizeService.DeleteSize(id);
+
+        var response = await SizeService.GetSizes();
+
+    }
+}

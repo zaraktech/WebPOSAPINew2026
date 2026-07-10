@@ -180,5 +180,20 @@ namespace APIDBFirst.Repositories
         }
 
 
+    //    public async Task<(IEnumerable<T> Data, int Count)> GetPagedAsync(
+    //int skip,
+    //int take)
+    //    {
+    //        var count = await _context.Set<T>().CountAsync();
+
+    //        var data = await _context.Set<T>()
+    //            .Skip(skip)
+    //            .Take(take)
+    //            .ToListAsync();
+
+    //        return (data, count);
+    //    }
+
+
     }
 }

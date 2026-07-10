@@ -1,0 +1,105 @@
+﻿@typeparam TEntity
+
+@if (CurrentView == ViewMode.List)
+{
+    <SfCard CssClass="shadow-sm">
+
+
+
+        <CardContent>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+                    <h5 class="mb-0">@Title</h5>
+                </div>
+
+                <SfButton CssClass="e-success"
+                          IconCss="e-icons e-add"
+                          @onclick="ShowAdd">
+                    Add New
+                </SfButton>
+
+            </div>
+
+            <SfGrid TValue="TEntity"
+                    DataSource="Items"
+                    Width="100%"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    AllowResizing="true"
+                    GridLines="GridLine.Both">
+
+                <GridPageSettings PageSize="10"></GridPageSettings>
+
+                <GridColumns>
+
+                    @foreach (var col in Columns)
+                    {
+                        <GridColumn Field="@col.Field"
+                                    HeaderText="@col.Header"
+                                    Width="@col.Width">
+                        </GridColumn>
+                    }
+
+                    <GridColumn HeaderText="Actions"
+                                Width="150"
+                                TextAlign="TextAlign.Center">
+
+                        <Template Context="context">
+
+                            @{
+                                var entity = (TEntity)context;
+                            }
+
+                            <SfButton CssClass="e-flat e-primary me-1"
+                                      IconCss="e-icons e-edit"
+                                      @onclick="async () => await EditItem(entity)">
+                            </SfButton>
+
+                            <SfButton CssClass="e-flat e-danger"
+                                      IconCss="e-icons e-delete"
+                                      @onclick="async () => await DeleteItem(entity)">
+                            </SfButton>
+
+                        </Template>
+
+                    </GridColumn>
+
+                </GridColumns>
+
+            </SfGrid>
+
+        </CardContent>
+
+    </SfCard>
+}
+else
+{
+    <SfCard CssClass="shadow-sm">
+
+        <CardHeader Title="@Title" />
+
+        <CardContent>
+
+            @FormTemplate(CurrentItem)
+
+        </CardContent>
+
+        <CardFooter>
+
+            <div class="text-end">
+
+                <SfButton CssClass="e-flat"
+                          IconCss="e-icons e-arrow-left"
+                          @onclick="BackToList">
+                    Back
+                </SfButton>
+
+            </div>
+
+        </CardFooter>
+
+    </SfCard>
+}

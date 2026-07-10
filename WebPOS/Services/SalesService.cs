@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 
-using WebPOS.Models;
+using Shared.Models;
 using WebPOS.ViewModels;
 
 
@@ -95,11 +95,11 @@ namespace WebPOS.Services
         //}
 
 
-        public async Task<List<PaymentTypes>> GetAllPayMentType()
-        {
-            var datas = await _http.GetFromJsonAsync<List<PaymentTypes>>("api/PaymentTypes");
-            return datas;
-        }
+        //public async Task<List<PaymentTypes>> GetAllPayMentType()
+        //{
+        //    var datas = await _http.GetFromJsonAsync<List<PaymentTypes>>("api/PaymentTypes");
+        //    return datas;
+        //}
 
     }
 }

@@ -19,6 +19,21 @@ namespace APIDBFirst.Controllers
             _repository = repository;
         }
 
+   //     [HttpGet("paged")]
+   //     public async Task<IActionResult> GetPaged(
+   //int skip = 0,
+   //int take = 10)
+   //     {
+   //         var result = await _repository.GetPagedAsync(skip, take);
+
+   //         return Ok(new
+   //         {
+   //             result = result.Data,
+   //             count = result.Count
+   //         });
+   //     }
+    
+
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
@@ -66,5 +81,7 @@ namespace APIDBFirst.Controllers
 
             return Ok();
         }
+
+
     }
 }

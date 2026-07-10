@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using WebPOS.DTO;
-using WebPOS.Models;
 using WebPOS.ViewModels;
 
 
@@ -15,11 +14,11 @@ namespace WebPOS.Services
             _http = httpClient;
         }
 
-        public async Task<List<ProductLookup>> GetProductLookups()
-        {
-            return await _http.GetFromJsonAsync<List<ProductLookup>>("api/offers/productlookups")
-                   ?? new List<ProductLookup>();
-        }
+        //public async Task<List<ProductLookup>> GetProductLookups()
+        //{
+        //    return await _http.GetFromJsonAsync<List<ProductLookup>>("api/offers/productlookups")
+        //           ?? new List<ProductLookup>();
+        //}
 
         public async Task<List<OfferViewModel>> GetOffers()
         {

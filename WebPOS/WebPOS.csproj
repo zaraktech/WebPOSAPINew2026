@@ -1,27 +1,44 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿	<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
-
-		<!-- 👇 REQUIRED FOR SYNCFUSION STATIC ASSETS -->
 		<StaticWebAssetBasePath>wwwroot</StaticWebAssetBasePath>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Pages\Models\**" />
+	  <Content Remove="Pages\Models\**" />
+	  <EmbeddedResource Remove="Pages\Models\**" />
+	  <None Remove="Pages\Models\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Pages\Customers.razor.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Remove="Pages\Customers.razor" />
 	  <Content Remove="Pages\OffersOld.razor" />
 	  <Content Remove="Pages\PurchaseForm - Copy.razor" />
+	  <Content Remove="Pages\PurchaseForm.razor" />
+	  <Content Remove="Pages\PurchaseList.razor" />
+	  <Content Remove="Pages\SalesForm.razor" />
+	  <Content Remove="Pages\SizesPage.razor" />
+	  <Content Remove="Pages\StockReport.razor" />
+	  <Content Remove="Pages\Suppliers.razor" />
+	  <Content Remove="Shared\BarcodeModel.razor" />
 	  <Content Remove="wwwroot\css\mainlayout.css" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="DevExpress.Blazor" Version="25.2.5" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.11" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.11" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.11" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.Build" Version="18.4.0" />
 		<PackageReference Include="MudBlazor" Version="8.10.0" />
 		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
@@ -35,6 +52,11 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Shared\Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Pages\Models\" />
+	  <Folder Include="Shared\" />
 	</ItemGroup>
 
 </Project>

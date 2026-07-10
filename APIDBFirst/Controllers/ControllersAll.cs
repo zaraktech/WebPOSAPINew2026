@@ -7,7 +7,7 @@ namespace APIDBFirst.Controllers
     // ─────────────────────────────────────────────
     // CustomerMaster
     // ─────────────────────────────────────────────
-   
+
 
     // ─────────────────────────────────────────────
     // Dsname
@@ -208,13 +208,13 @@ namespace APIDBFirst.Controllers
     }
 
     // ─────────────────────────────────────────────
-    // StoreDetail
+    // TblStore
     // ─────────────────────────────────────────────
     [Route("api/[controller]")]
     [ApiController]
-    public class StoreDetailController : BaseApiController<StoreDetail>
+    public class StoreController : BaseApiController<TblStore>
     {
-        public StoreDetailController(IGenericRepository<StoreDetail> repository)
+        public StoreController(IGenericRepository<TblStore> repository)
             : base(repository) { }
     }
 
@@ -338,4 +338,12 @@ namespace APIDBFirst.Controllers
         public UommasterController(IGenericRepository<Uommaster> repository)
             : base(repository) { }
     }
+
+
+
+   
+
+
+
+
 }

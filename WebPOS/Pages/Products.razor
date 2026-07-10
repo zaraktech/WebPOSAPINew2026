@@ -1,222 +1,54 @@
 ﻿@page "/products"
-@page "/products/new"
-@page "/products/edit/{Id:int}"
-
-@using WebPOS.Models
-@inject ProductService ProductService
-@inject NavigationManager NavigationManager
-@inject IJSRuntime JS
-@inject ErrorLoggerService ErrorLogger
-@inject ToastService ToastService
-@inject DialogService DialogService
-
-@using Syncfusion.Blazor
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Buttons
 
 
-@if (currentView == ProductView.List)
-{
-    <div class="d-flex justify-content-center mt-4">
-        <div class="card shadow" style="width: 75%;">
-            <div class="card-header bg-success text-white text-center">
-                <h3 class="mb-0">Products</h3>
+@using WebPOS.Components
+@using global::Shared.Models
+
+<CrudPage TEntity="ItemMaster"
+          @ref="crudPage"
+          Title="Products"
+          Items="itemMasters"
+          CurrentItem="itemMaster"
+          CurrentItemChanged="OnCurrentItemChanged"
+          Columns="columns"
+          GetId="p => p.ItemId"
+          OnDelete="DeleteProduct">
+
+    <FormTemplate Context="item">
+
+        <EditForm Model="item"
+                  OnValidSubmit="@(() => HandleValidSubmit(item))">
+
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Product Name</label>
+
+                <InputText class="form-control"
+                           @bind-Value="item.Item" width="40%" />
             </div>
 
-            <div class="card-body">
-                <button class="btn mb-3" @onclick="ShowAddForm" style="background-color: darkgreen; color: white;">
-                    <i class="fas fa-plus"></i> Add New Product
-                </button>
+            <div class="mb-3">
+                <label>Discount</label>
 
-                @if (products == null)
-                {
-                    <div class="d-flex justify-content-center mt-4">
-                        <SfSpinner Visible="true"></SfSpinner>
-                    </div>
-                }
-                else if (!products.Any())
-                {
-                    <SfMessage Severity="MessageSeverity.Info">
-                        No suppliers found
-                    </SfMessage>
-                }
-                else
-                {
-                    <SfGrid TValue="Product"
-                            DataSource="products"
-                            AllowPaging="true"
-                            AllowSorting="true"
-							AllowFiltering="true"
-                            Width="100%">
-
-                        <GridPageSettings PageSize="10"></GridPageSettings>
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar" />
-
-
-                        <GridColumns>
-
-                           
-                            <GridColumn Field="ProductName"
-                                        HeaderText="Product Name"
-                                        Width="150"
-                            TextAlign="TextAlign.Left">
-                            </GridColumn>
-
-                  
-                            <GridColumn HeaderText="Actions"
-                                        Width="180"
-                                        TextAlign="TextAlign.Center">
-                                <Template Context="item">
-                                    @{
-                                        var product = (Product)item;
-                                    }
-
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <SfButton CssClass="e-primary e-small"
-                                                  IconCss="e-icons e-edit"
-                                                  @onclick="() => ShowEditForm(product.ProductId)">
-                                            Edit
-                                        </SfButton>
-
-                                        <SfButton CssClass="e-danger e-small"
-                                                  IconCss="e-icons e-delete"
-                                                  @onclick="() => DeleteProduct(product.ProductId)">
-                                            Delete
-                                        </SfButton>
-                                    </div>
-                                </Template>
-                            </GridColumn>
-
-                        </GridColumns>
-                    </SfGrid>
-
-                }
-            </div>
-        </div>
-    </div>
-}
-else if (currentView == ProductView.Form)
-{
-    <div class="d-flex justify-content-center mt-4">
-        <div class="card shadow" style="width: 50%;">
-            <div class="card-header bg-gradient text-white text-center bg-success">
-                <h3 class="mb-0">@((product.ProductId == 0 ? "Add New" : "Edit") + " Product")</h3>
+                <InputNumber class="form-control"
+                             @bind-Value="item.DisPercent" />
             </div>
 
-            <div class="card-body">
-                <EditForm Model="@product" OnValidSubmit="HandleValidSubmit">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-                     
-                    <div class="mb-3">
-                        <label class="form-label">Product Name</label>
-                        <InputText class="form-control" @bind-Value="product.ProductName" />
-                        <ValidationMessage For="@(() =>product.ProductName)" />
-                    </div>
+            <div class="mb-3">
+                <label>Reorder</label>
 
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-primary" disabled="@isLoading">
-                            @if (isLoading)
-                            {
-                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                            }
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-secondary" @onclick="ShowList">Cancel</button>
-                    </div>
-                </EditForm>
+                <InputNumber class="form-control"
+                             @bind-Value="item.ReOrder" />
             </div>
-        </div>
-    </div>
-}
 
-@code {
-    private enum ProductView { List, Form }
-    private ProductView currentView = ProductView.List;
+            <button type="submit"
+                    class="btn btn-success">
+                Save
+            </button>
 
-    private List<Product> products;
-    private Product product = new Product();
-    private bool isLoading = false;
+        </EditForm>
 
-    [Parameter] public int Id { get; set; }
+    </FormTemplate>
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadProducts();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Id > 0)
-        {
-            product = await ProductService.GetProduct(Id) ?? new Product();
-            currentView = ProductView.Form;
-        }
-    }
-
-    private async Task LoadProducts()
-    {
-        products = await ProductService.GetProducts();
-        StateHasChanged();
-      
-    }
-
-    private void ShowAddForm()
-    {
-        product = new Product();
-        currentView = ProductView.Form;
-        NavigationManager.NavigateTo("/products/new");
-    }
-
-    private void ShowEditForm(int id)
-    {
-        Id = id;
-        NavigationManager.NavigateTo($"/products/edit/{id}");
-    }
-
-    private void ShowList()
-    {
-        currentView = ProductView.List;
-        NavigationManager.NavigateTo("/products");
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        isLoading = true;
-        try
-        {
-            if (product.ProductId == 0)
-                await ProductService.AddProduct(product);
-            else
-                await ProductService.UpdateProduct(product);
-
-            await ToastService.Success("Product saved successfully.");
-            await LoadProducts();
-			
-            ShowList();
-        }
-        catch (Exception ex)
-        {
-            // Log the exception or show a user-friendly message
-            await ErrorLogger.LogAsync(ex.Message + "-" + ex.InnerException?.Message);
-           
-            await ToastService.Error("An error occurred while saving the product.\n Error:{ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-
-    private async Task DeleteProduct(int id)
-    {
-		bool confirmed = await DialogService.ConfirmAsync("Delete Product", "Are you sure you want to delete this product?");
-        if (confirmed)
-        {
-            await ProductService.DeleteProduct(id);
-            await LoadProducts();
-			await ToastService.Success("Product deleted successfully.");
-        }
-    }
-}
+</CrudPage>

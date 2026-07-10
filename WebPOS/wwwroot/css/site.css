@@ -167,3 +167,28 @@ body, .mud-main-content, .mud-container, .sidebar, .main-content {
     align-items: center;
     gap: 8px;
 }
+
+.e-card {
+    border-radius: 8px;
+}
+
+.e-card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.e-card-content {
+    padding: 20px;
+}
+
+.e-grid {
+    border-radius: 6px;
+}
+
+    .e-grid .e-headercell {
+        font-weight: 600;
+    }
+
+.e-flat {
+    min-width: 34px;
+}

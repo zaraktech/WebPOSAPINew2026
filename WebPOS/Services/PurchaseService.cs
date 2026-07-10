@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-using WebPOS.Models;
+using Shared.Models;
 
 namespace WebPOS.Services
 {
@@ -12,24 +12,24 @@ namespace WebPOS.Services
             _http = http;
         }
 
-        public async Task<List<PurchaseViewModel>> GetPurchases()
+        public async Task<List<Purchase>> GetPurchases()
         {
-            return await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/purchases");
+            return await _http.GetFromJsonAsync<List<Purchase>>("api/purchase");
         }
 
-        public async Task<PurchaseViewModel> GetPurchase(int id)
+        public async Task<Purchase> GetPurchase(int id)
         {
-            return await _http.GetFromJsonAsync<PurchaseViewModel>($"api/purchases/{id}");
+            return await _http.GetFromJsonAsync<Purchase>($"api/purchase/{id}");
         }
 
-        public async Task<PurchaseViewModel> GetBarcodePurchase(int barcdoe)
+        public async Task<Purchase> GetBarcodePurchase(int barcdoe)
         {
-            return await _http.GetFromJsonAsync<PurchaseViewModel>($"api/purchases/GetBarcode/{barcdoe}");
+            return await _http.GetFromJsonAsync<Purchase>($"api/purchase/GetBarcode/{barcdoe}");
         }
 
-        public async Task AddPurchase(PurchaseViewModel purchase)
+        public async Task AddPurchase(Purchase purchase)
         {
-            var response = await _http.PostAsJsonAsync("api/purchases", purchase);
+            var response = await _http.PostAsJsonAsync("api/purchase", purchase);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -38,8 +38,8 @@ namespace WebPOS.Services
             }
         }
 
-        public async Task UpdatePurchase(PurchaseViewModel purchase) =>
-            await _http.PutAsJsonAsync($"api/purchases/{purchase.Id}", purchase);
+        public async Task UpdatePurchase(Purchase purchase) =>
+            await _http.PutAsJsonAsync($"api/purchase/{purchase.Purid}", purchase);
 
 
 

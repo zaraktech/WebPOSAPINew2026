@@ -109,17 +109,17 @@
 
             
 
-            var offer = new OfferViewModel
-            {
-                Id=purchase.Id,
-                Barcode = purchase.Barcode,
-                ProductName = purchase.ProductName,
-                SizeName = purchase.SizeName,
-                SalePrice = purchase.SalePrice,
-                ShopName = purchase.ShopName
-            };
+            // var offer = new OfferViewModel
+            // {
+            //     Id=purchase.Id,
+            //     Barcode = purchase.Barcode,
+            //     ProductName = purchase.ProductName,
+            //     SizeName = purchase.SizeName,
+            //     SalePrice = purchase.SalePrice,
+            //     ShopName = purchase.ShopName
+            // };
 
-            ScannedList.Add(offer);
+            // ScannedList.Add(offer);
 
             await Grid.Refresh();
 
@@ -145,15 +145,15 @@
 
         foreach (var item in ScannedList)
         {
-            var success = await OfferService.UpdateBarcodeAsync(
-                item.Barcode,
-                item.OfferPrice);
+            // var success = await OfferService.UpdateBarcodeAsync(
+            //     item.Barcode,
+            //     item.OfferPrice);
 
-            if (!success)
-            {
-                await ToastService.Error($"Failed for barcode {item.Barcode}");
-                return;
-            }
+            // if (!success)
+            // {
+            //     await ToastService.Error($"Failed for barcode {item.Barcode}");
+            //     return;
+            // }
         }
 
         await ToastService.Success("Sale prices updated successfully");

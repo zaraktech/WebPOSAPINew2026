@@ -2,10 +2,10 @@
 
 @using Syncfusion.Blazor.Grids
 @using WebPOS.ViewModels
-@using WebPOS.Models
+@using Shared.Models
 
 @inject SalesService SalesService
-@inject ShopNamesService ShopNamesService
+@inject StoreService ShopNamesService
 
 
 
@@ -23,7 +23,7 @@
                         <option value="">-- Select Shop --</option>
                         @foreach (var shop in Shops)
                         {
-                            <option value="@shop.ShopNamesId">@shop.ShopName</option>
+                            <option value="@shop.StoreName">@shop.StoreName</option>
                         }
                     </select>
                 </div>
@@ -101,7 +101,7 @@ else
 
     private List<SaleViewModel> AllSales = new();
 
-    private List<ShopNames> Shops = new();
+    private List<StoreDetail> Shops = new();
     private bool IsLoaded = false;
 
     public DateTime? StartValue { get; set; } = DateTime.Now.AddDays(-7);
@@ -196,7 +196,7 @@ else
     {
         try
         {
-            Shops = await ShopNamesService.GetShopNames();
+           // Shops = await ShopNamesService.GetShopNames();
         }
         catch (Exception ex)
         {
