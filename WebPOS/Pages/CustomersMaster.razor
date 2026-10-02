@@ -23,45 +23,54 @@
 
             <DataAnnotationsValidator />
 
-            <div class="mb-3">
-                <label>Customer Name</label>
-                <InputText class="form-control"
-                           @bind-Value="item.Customer" />
+            <!-- Row 1 -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Customer Name</label>
+                    <SfTextBox class="form-control"
+                               @bind-Value="item.Customer" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Address</label>
+                    <SfTextBox class="form-control"
+                               @bind-Value="item.Caddress" />
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label>Address</label>
-                <InputText class="form-control"
-                           @bind-Value="item.Caddress" />
+            <!-- Row 2 -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">City</label>
+                    <SfTextBox class="form-control"
+                               @bind-Value="item.City" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Telephone</label>
+                    <SfTextBox class="form-control"
+                               @bind-Value="item.Telephone" />
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label>City</label>
-                <InputText class="form-control"
-                           @bind-Value="item.City" />
+            <!-- Row 3 -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Mobile</label>
+                    <SfTextBox class="form-control"
+                               @bind-Value="item.MobileNo" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Email</label>
+                    <SfTextBox class="form-control"
+                               @bind-Value="item.EmailId" />
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label>Telephone</label>
-                <InputText class="form-control"
-                           @bind-Value="item.Telephone" />
-            </div>
-
-            <div class="mb-3">
-                <label>Mobile</label>
-                <InputText class="form-control"
-                           @bind-Value="item.MobileNo" />
-            </div>
-
-            <div class="mb-3">
-                <label>Email</label>
-                <InputText class="form-control"
-                           @bind-Value="item.EmailId" />
-            </div>
-
-            <button type="submit" class="btn btn-success">
+            <SfButton type="submit" class="btn btn-success" >
                 Save
-            </button>
+            </SfButton>
 
         </EditForm>
 
