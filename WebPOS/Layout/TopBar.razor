@@ -1,12 +1,20 @@
+
 @using DevExpress.Blazor
+@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Routing
+@implements IDisposable
 
 <!-- ═══════════════════════════ TOPBAR ═══════════════════════════ -->
 <header class="topbar">
 
     <!-- Left zone: hamburger + breadcrumb title -->
     <div class="topbar-left">
-        <button class="hamburger-btn" @onclick="OnToggleSidebar" title="Toggle Sidebar">
+        <button class="hamburger-btn"
+                @onclick="OnToggleSidebar"
+                title="Toggle Sidebar"
+                type="button"
+                aria-label="Toggle Sidebar">
             <span class="ham-bar"></span>
             <span class="ham-bar ham-bar--mid"></span>
             <span class="ham-bar"></span>
@@ -29,13 +37,19 @@
         </div>
 
         <!-- Notifications -->
-        <button class="topbar-icon-btn" title="Notifications">
+        <button class="topbar-icon-btn"
+                title="Notifications"
+                type="button"
+                aria-label="Notifications">
             <i class="fas fa-bell"></i>
             <span class="notif-dot"></span>
         </button>
 
         <!-- Settings -->
-        <button class="topbar-icon-btn" title="Settings">
+        <button class="topbar-icon-btn"
+                title="Settings"
+                type="button"
+                aria-label="Settings">
             <i class="fas fa-cog"></i>
         </button>
 
@@ -57,30 +71,47 @@
 </header>
 
 @code {
-    [Parameter] public EventCallback ToggleSidebar { get; set; }
-    [Parameter] public string? PageTitle { get; set; }
+    [Parameter]
+    public EventCallback ToggleSidebar { get; set; }
+
+    [Parameter]
+    public string? PageTitle { get; set; }
 
     private string _time = string.Empty;
+
     private System.Threading.Timer? _timer;
 
     protected override void OnInitialized()
     {
         UpdateTime();
-        _timer = new System.Threading.Timer(_ =>
-        {
-            UpdateTime();
-            InvokeAsync(StateHasChanged);
-        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+
+        _timer = new System.Threading.Timer(
+            _ =>
+            {
+                UpdateTime();
+                _ = InvokeAsync(StateHasChanged);
+            },
+            null,
+            TimeSpan.FromSeconds(1),
+            TimeSpan.FromSeconds(1));
     }
 
-    void UpdateTime() =>
+    private void UpdateTime()
+    {
         _time = DateTime.Now.ToString("HH:mm:ss");
+    }
 
-    async Task OnToggleSidebar()
+    private async Task OnToggleSidebar()
     {
         if (ToggleSidebar.HasDelegate)
+        {
             await ToggleSidebar.InvokeAsync();
+        }
     }
 
-    public void Dispose() => _timer?.Dispose();
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _timer = null;
+    }
 }

@@ -1,67 +1,113 @@
+
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 
 <div class="layout-shell">
 
-    <!-- Sidebar -->
     <aside class="app-sidebar @(SidebarOpen ? "" : "collapsed")">
-        <div class="sidebar-logo">
-            <h4>POS SYSTEM</h4>
+        <div class="sidebar-brand">
+            <div class="brand-mark">
+                <i class="bi bi-shop-window"></i>
+            </div>
+            <div class="brand-copy">
+                <div class="brand-name">WebPOS</div>
+                <div class="brand-subtitle">Point of Sale</div>
+            </div>
         </div>
 
-        <div class="sidebar-menu">
+        <div class="sidebar-divider"></div>
+
+        <nav class="sidebar-menu" aria-label="Main navigation">
             <SideBarMenu />
-        </div>
+        </nav>
     </aside>
 
-    <!-- Main Area -->
     <div class="layout-main">
 
-        <!-- Header -->
         <header class="app-header">
-
             <div class="header-left">
-                <button class="menu-toggle" @onclick="ToggleSidebar">
+                <button class="menu-toggle"
+                        @onclick="ToggleSidebar"
+                        title="Toggle navigation"
+                        type="button"
+                        aria-label="Toggle navigation"
+                        aria-expanded="@SidebarOpen">
                     <i class="bi bi-list"></i>
                 </button>
 
-                <div class="page-title">
-                    @PageTitle
+                <div class="header-context">
+                    <h1 class="page-title">@PageTitle</h1>
                 </div>
             </div>
 
-            <div class="header-right d-flex g-2">
-                <div class="user-box">
-                    <i class="bi bi-person-circle"></i>
-                    <span>Admin</span>
+            <div class="header-right">
+                <div class="user-box" aria-label="Signed-in user">
+                    <div class="user-avatar">A</div>
+                    <div class="user-copy">
+                        <strong>Admin</strong>
+                        <span>Administrator</span>
+                    </div>
                 </div>
-                <button class="btn btn-danger" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
             </div>
-
         </header>
 
-        <!-- Content -->
         <main class="app-body">
             @Body
         </main>
 
     </div>
-
 </div>
 
 @code {
+    private bool SidebarOpen = true;
 
-    bool SidebarOpen = true;
-
-    void ToggleSidebar()
+    private void ToggleSidebar()
     {
         SidebarOpen = !SidebarOpen;
     }
 
-    string PageTitle = "Dashboard";
+    private string PageTitle
+    {
+        get
+        {
+            var relativePath = NavigationManager.ToBaseRelativePath(
+                NavigationManager.Uri);
 
+            var path = relativePath
+                .Split('?', '#')[0]
+                .Trim('/')
+                .ToLowerInvariant();
+
+            if (path.Length == 0)
+            {
+                return "Dashboard";
+            }
+
+            var segments = path.Split(
+                '/',
+                StringSplitOptions.RemoveEmptyEntries);
+
+            var currentPage = segments.Length > 0
+                ? segments[0]
+                : string.Empty;
+
+            return currentPage switch
+            {
+                "customers" => "Customers",
+                "suppliers" => "Suppliers",
+                "products" => "Products",
+                "purchases" => "Purchases",
+                "sales" => "Sales",
+                "offers" => "Offers",
+                "reports" => "Reports",
+                "purchase-report" => "Purchase Report",
+                "sales-report" => "Sales Report",
+                "stockreport" => "Stock Report",
+                "shopnames" => "Shops",
+                "sizespage" => "Sizes",
+                "dashboard" => "Dashboard",
+                _ => "Dashboard"
+            };
+        }
+    }
 }
-
-  

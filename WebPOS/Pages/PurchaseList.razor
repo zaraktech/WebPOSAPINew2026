@@ -1,5 +1,4 @@
 ﻿@page "/purchases"
-@using WebPOS.Shared
 @inject PurchaseService PurchaseService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -10,6 +9,7 @@
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Data
 @using System.Linq
+@using WebPOS.Models
 
 
 
@@ -187,26 +187,33 @@
 <script>
     
 </script>
+
 @code {
-    // private SfGrid<PurchaseViewModel> purchaseGrid;
-    // private string searchTerm = string.Empty;
     private PurchaseViewModel? selectedItem;
     private bool isModalVisible = false;
-     private IEnumerable<PurchaseViewModel> GridData = new List<PurchaseViewModel>();
 
-    // private Query GridQuery = new Query();
+    private IEnumerable<PurchaseViewModel> GridData =
+        new List<PurchaseViewModel>();
 
-
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-         GridData = await PurchaseService.GetPurchases();
-
+        await LoadData();
     }
+
     private async Task LoadData()
     {
         var result = await PurchaseService.GetPurchases();
-        GridData = result;
-        await InvokeAsync(StateHasChanged);
+
+        GridData = result.Select(p => new PurchaseViewModel
+        {
+            Barcode = p.Barcode,
+            ProductName = p.Item,
+            SizeName = p.Sizes,
+            Qty = p.Qty
+
+            // Add other properties required by your grid.
+            // Example: PurchaseId = p.PurchaseId
+        }).ToList();
     }
 
     private void ShowDetails(PurchaseViewModel item)
@@ -218,6 +225,7 @@
             SizeName = item.SizeName,
             Qty = item.Qty
         };
+
         isModalVisible = true;
     }
 
@@ -226,8 +234,6 @@
         isModalVisible = false;
         selectedItem = null;
     }
-
-    
 
     private void NewPurchase()
     {
@@ -242,20 +248,17 @@
     private async Task DeletePurchase(int id)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirmDelete");
-        if (confirmed)
-        {
-            await PurchaseService.DeletePurchase(id);
- 
-			await ToastService.Success("Purchase deleted successfully.");
-            await LoadData();
-        }
-    }
 
-    protected override async Task OnInitializedAsync()
-    {
+        if (!confirmed)
+            return;
+
+        await PurchaseService.DeletePurchase(id);
+        await ToastService.Success("Purchase deleted successfully.");
+
         await LoadData();
     }
 }
+
 
 
 <style>

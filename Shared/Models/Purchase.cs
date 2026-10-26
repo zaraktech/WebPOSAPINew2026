@@ -28,6 +28,8 @@ public partial class Purchase
     [Unicode(false)]
     public string Item { get; set; } = null!;
 
+    public int SizeId { get; set; }
+
     [StringLength(80)]
     [Unicode(false)]
     public string? Sizes { get; set; }

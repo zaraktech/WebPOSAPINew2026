@@ -5,7 +5,8 @@
 @using WebPOS.ColumnDefinations
 @using WebPOS.Components
 @using WebPOS.Services
-@inject CustomerService CustomerService 
+@inject CustomerService CustomerService
+
 <CrudPage TEntity="CustomerMaster"
           @ref="crudPage"
           Title="Customers"
@@ -17,103 +18,137 @@
           OnDelete="DeleteCustomer">
 
     <FormTemplate Context="item">
-
         <EditForm Model="item"
                   OnValidSubmit="@(() => HandleValidSubmit(item))">
 
             <DataAnnotationsValidator />
+            <ValidationSummary class="validation-summary" />
 
-            <!-- Row 1 -->
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Customer Name</label>
-                    <SfTextBox class="form-control"
+            <div class="form-section-title">
+                <span>Contact information</span>
+                <small>Fields marked with <b>*</b> are required.</small>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-lg-6">
+                    <label class="professional-label" for="customer-name">
+                        Customer Name <span>*</span>
+                    </label>
+                    <SfTextBox ID="customer-name"
+                               CssClass="professional-input"
+                               Placeholder="Enter customer name"
                                @bind-Value="item.Customer" />
                 </div>
 
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Address</label>
-                    <SfTextBox class="form-control"
-                               @bind-Value="item.Caddress" />
-                </div>
-            </div>
-
-            <!-- Row 2 -->
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">City</label>
-                    <SfTextBox class="form-control"
-                               @bind-Value="item.City" />
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Telephone</label>
-                    <SfTextBox class="form-control"
-                               @bind-Value="item.Telephone" />
-                </div>
-            </div>
-
-            <!-- Row 3 -->
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Mobile</label>
-                    <SfTextBox class="form-control"
+                <div class="col-lg-6">
+                    <label class="professional-label" for="customer-mobile">
+                        Mobile Number <span>*</span>
+                    </label>
+                    <SfTextBox ID="customer-mobile"
+                               CssClass="professional-input"
+                               Placeholder="Enter mobile number"
                                @bind-Value="item.MobileNo" />
                 </div>
 
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">Email</label>
-                    <SfTextBox class="form-control"
+                <div class="col-lg-6">
+                    <label class="professional-label" for="customer-telephone">
+                        Telephone
+                    </label>
+                    <SfTextBox ID="customer-telephone"
+                               CssClass="professional-input"
+                               Placeholder="Enter telephone number"
+                               @bind-Value="item.Telephone" />
+                </div>
+
+                <div class="col-lg-6">
+                    <label class="professional-label" for="customer-email">
+                        Email
+                    </label>
+                    <SfTextBox ID="customer-email"
+                               CssClass="professional-input"
+                               Placeholder="name@example.com"
                                @bind-Value="item.EmailId" />
+                </div>
+
+                <div class="col-12">
+                    <label class="professional-label" for="customer-address">
+                        Address
+                    </label>
+                    <SfTextBox ID="customer-address"
+                               CssClass="professional-input"
+                               Placeholder="Enter customer address"
+                               Multiline="true"
+                               @bind-Value="item.Caddress" />
+                </div>
+
+                <div class="col-lg-6">
+                    <label class="professional-label" for="customer-city">
+                        City
+                    </label>
+                    <SfTextBox ID="customer-city"
+                               CssClass="professional-input"
+                               Placeholder="Enter city"
+                               @bind-Value="item.City" />
                 </div>
             </div>
 
-            <SfButton type="submit" class="btn btn-success" >
-                Save
-            </SfButton>
+            <div class="form-actions">
+                <button type="button"
+                        class="btn-secondary-ui"
+                        @onclick="() => crudPage?.Refresh()">
+                    Cancel
+                </button>
+
+                <SfButton CssClass="crud-primary-button"
+                          IconCss="e-icons e-check"
+                          Type="Submit">
+                    Save Customer
+                </SfButton>
+            </div>
 
         </EditForm>
-
     </FormTemplate>
 
 </CrudPage>
 
+@code {
+    private CrudPage<CustomerMaster>? crudPage;
 
-@code{
+    private List<CustomerMaster> customers = new();
+    private CustomerMaster customer = new();
 
- private CrudPage<CustomerMaster>? crudPage;
+    private readonly List<GridColumnDefinition> columns =
+    [
+        new() { Field = nameof(CustomerMaster.Customer), Header = "Customer", Width = "220" },
+        new() { Field = nameof(CustomerMaster.City), Header = "City", Width = "180" },
+        new() { Field = nameof(CustomerMaster.MobileNo), Header = "Mobile", Width = "180" }
+    ];
 
-private List<CustomerMaster> customers = new();
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetCustomers();
+    }
 
-private CustomerMaster customer = new();
+    private void OnCurrentItemChanged(CustomerMaster item)
+    {
+        customer = item;
+    }
 
-private List<GridColumnDefinition> columns =
-[
-    new() { Field = nameof(CustomerMaster), Header = "Customer" },
-    new() { Field = nameof(CustomerMaster.City), Header = "City" },
-    new() { Field = nameof(CustomerMaster.MobileNo), Header = "Mobile" }
-];
+    private async Task HandleValidSubmit(CustomerMaster item)
+    {
+        if (item.CustomerId == 0)
+            await CustomerService.AddCustomer(item);
+        else
+            await CustomerService.UpdateCustomer(item);
 
-private void OnCurrentItemChanged(CustomerMaster item)
-{
-    customer = item;
+        customers = await CustomerService.GetCustomers();
+        crudPage?.Refresh();
+    }
+
+    private async Task DeleteCustomer(int id)
+    {
+        await CustomerService.DeleteCustomer(id);
+        customers = await CustomerService.GetCustomers();
+    }
 }
-
-private async Task HandleValidSubmit(CustomerMaster item)
-{
-    if (item.CustomerId == 0)
-        await CustomerService.AddCustomer(item);
-    else
-        await CustomerService.UpdateCustomer(item);
-
-    customers = await CustomerService.GetCustomers();
-
-    crudPage?.Refresh();
-}
-
-private async Task DeleteCustomer(int id)
-{
-    await CustomerService.DeleteCustomer(id);
-    customers = await CustomerService.GetCustomers();
-}
-                }

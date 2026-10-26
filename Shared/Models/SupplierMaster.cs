@@ -9,32 +9,16 @@ namespace Shared.Models;
 public partial class SupplierMaster
 {
     [Key]
-    [Column("SupplierID")]
     public int SupplierId { get; set; }
 
-    [StringLength(100)]
-    [Unicode(false)]
-    public string Supplier { get; set; } = null!;
+    [Required(ErrorMessage = "Supplier name is required")]
+    [StringLength(100, ErrorMessage = "Supplier name cannot exceed 100 characters")]
+    public string SupplierName { get; set; }
 
-    [StringLength(150)]
-    [Unicode(false)]
-    public string Saddress { get; set; } = null!;
+    [Required(ErrorMessage = "Mobile number is required")]
+    [Phone(ErrorMessage = "Invalid phone number")]
+    [StringLength(10, ErrorMessage = "Mobile number cannot exceed 10 characters")]
+    public string MobileNo { get; set; }
 
-    [StringLength(15)]
-    [Unicode(false)]
-    public string City { get; set; } = null!;
-
-    [StringLength(15)]
-    [Unicode(false)]
-    public string Telephone { get; set; } = null!;
-
-    [Column("MobileNO")]
-    [StringLength(13)]
-    [Unicode(false)]
-    public string MobileNo { get; set; } = null!;
-
-    [Column("EmailID")]
-    [StringLength(20)]
-    [Unicode(false)]
-    public string EmailId { get; set; } = null!;
+    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 }

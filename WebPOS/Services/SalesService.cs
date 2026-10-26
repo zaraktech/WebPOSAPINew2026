@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 
 using Shared.Models;
+using WebPOS.Models;
 using WebPOS.ViewModels;
 
 
@@ -64,7 +65,7 @@ namespace WebPOS.Services
                     SalePrice = x.SalePrice,
                     Discount = x.Discount,
                     DiscountAmt = (x.Qty * x.SalePrice) * (x.Discount / 100m),
-                    ShopnameId = x.ShopnameId,
+                    ShopName = x.ShopName,
 
                     Amount = (x.Qty * x.SalePrice) - ((x.Qty * x.SalePrice) * (x.Discount / 100m)),
                     CGST = x.CGST,
@@ -95,11 +96,11 @@ namespace WebPOS.Services
         //}
 
 
-        //public async Task<List<PaymentTypes>> GetAllPayMentType()
-        //{
-        //    var datas = await _http.GetFromJsonAsync<List<PaymentTypes>>("api/PaymentTypes");
-        //    return datas;
-        //}
+        public async Task<List<PaymentTypes>> GetAllPayMentType()
+        {
+            var datas = await _http.GetFromJsonAsync<List<PaymentTypes>>("api/PaymentTypes");
+            return datas;
+        }
 
     }
 }

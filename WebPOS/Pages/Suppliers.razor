@@ -1,6 +1,8 @@
 ﻿@page "/suppliers"
 @page "/suppliers/new"
 @page "/suppliers/edit/{Id:int}"
+@* @using WebPOS.Models *@
+@using Shared.Models
 
 
 @inject SupplierService SupplierService
@@ -32,7 +34,7 @@
                 <SfSpinner Visible="true"></SfSpinner>
             </div>
         }
-        else if (suppliers?.Count == 0)
+        else if (supplierMasters?.Count == 0)
         {
             <SfMessage Severity="MessageSeverity.Info">
                 No suppliers found
@@ -40,8 +42,8 @@
         }
         else
         {
-            <SfGrid TValue="Supplier"
-                    DataSource="suppliers"
+            <SfGrid TValue="SupplierMaster"
+                    DataSource="supplierMasters"
                     AllowPaging="true"
                     AllowSorting="true"
                     AllowFiltering="true"
@@ -64,7 +66,7 @@
                                 TextAlign="TextAlign.Center">
                         <Template Context="item">
                             @{
-                                var supplier = (Supplier)item;
+                                var supplier = (SupplierMaster)item;
                             }
 
                             <SfButton CssClass="e-info e-small me-2"
@@ -89,16 +91,16 @@ else if (currentView == SupplierView.Form)
 
         <div class="text-center mb-3">
             <h4 class="text-primary">
-                @((supplier.SupplierId == 0 ? "Add New" : "Edit") + " Supplier")
+                @((supplierMaster.SupplierId == 0 ? "Add New" : "Edit") + " Supplier")
             </h4>
         </div>
 
-        <EditForm Model="@supplier" OnValidSubmit="HandleValidSubmit">
+        <EditForm Model="@supplierMaster" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
             <div class="mb-3">
-               <SfTextBox @bind-Value="supplier.SupplierName"
+               <SfTextBox @bind-Value="supplierMaster.SupplierName"
                           FloatLabelType="FloatLabelType.Never"
            Placeholder="Supplier Name" />
             </div>
@@ -106,7 +108,7 @@ else if (currentView == SupplierView.Form)
             <div class="mb-3">
                 <SfTextBox Placeholder="Mobile Number"
                            FloatLabelType="FloatLabelType.Never"
-                           @bind-Value="supplier.MobileNo" />
+                           @bind-Value="supplierMaster.MobileNo" />
             </div>
 
             <hr />
@@ -133,8 +135,8 @@ else if (currentView == SupplierView.Form)
     private enum SupplierView { List, Form }
     private SupplierView currentView = SupplierView.List;
 
-    private List<Supplier> suppliers;
-    private Supplier supplier = new Supplier();
+    private List<SupplierMaster> supplierMasters;
+    private SupplierMaster supplierMaster = new SupplierMaster();
     private bool isLoading = false;
 
     [Parameter] public int Id { get; set; }
@@ -148,7 +150,7 @@ else if (currentView == SupplierView.Form)
     {
         if (Id > 0)
         {
-            supplier = await SupplierService.GetSupplier(Id) ?? new Supplier();
+            supplierMaster = await SupplierService.GetSupplier(Id);
             currentView = SupplierView.Form;
         }
     }
@@ -156,13 +158,13 @@ else if (currentView == SupplierView.Form)
     private async Task LoadSuppliers()
     {
         isLoading = true;
-        suppliers = await SupplierService.GetSuppliers();
+        supplierMasters = await SupplierService.GetSuppliers();
         isLoading = false;
     }
 
     private void ShowAddForm()
     {
-        supplier = new Supplier();
+        supplierMaster = new SupplierMaster();
         currentView = SupplierView.Form;
         NavigationManager.NavigateTo("/suppliers/new");
     }
@@ -184,10 +186,10 @@ else if (currentView == SupplierView.Form)
         isLoading = true;
         try
         {
-            if (supplier.SupplierId == 0)
+            if (supplierMaster.SupplierId == 0)
             {
 
-                bool status= await SupplierService.AddSupplier(supplier);
+                bool status= await SupplierService.AddSupplier(supplierMaster);
                 if (status==true)
                 {
                    // Snackbar.Add("Supplier saved successfully.", Severity.Success, config => { config.ShowTransitionDuration = 500; config.HideTransitionDuration = 500; config.VisibleStateDuration = 500; });
@@ -205,7 +207,7 @@ else if (currentView == SupplierView.Form)
 
             else
             {
-                bool status= await SupplierService.UpdateSupplier(supplier);
+                bool status= await SupplierService.UpdateSupplier(supplierMaster);
                 if(status==true)
                 {
 					await ToastService.Success("Supplier updated successfully.");

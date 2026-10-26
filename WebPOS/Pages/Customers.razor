@@ -40,23 +40,23 @@
             </SfButton>
             </div>
 
-                @if (customers == null)
+                @if (customerMasters == null)
                 {
                     <div class="d-flex justify-content-center mt-4">
                         <SfSpinner Visible="true"></SfSpinner>
                     </div>
                 }
-                else if (!customers.Any())
+                else if (!customerMasters.Any())
                 {
                     <SfMessage Severity="MessageSeverity.Info">
-                        No suppliers found
+                        No customers found
                     </SfMessage>
                 }
 
 
            else
             {
-                <SfGrid DataSource="@customers"
+                <SfGrid DataSource="@customerMasters"
                         AllowPaging="true"
                         AllowSorting="true"
 							AllowFiltering="true"
@@ -83,18 +83,18 @@
 
                             <Template Context="data">
                                 @{
-                                    var customer = (Customer)data;
+                                    var customer = (CustomerMaster)data;
                                 }
 
                                 <SfButton CssClass="e-small e-primary me-2"
                                           IconCss="fas fa-edit"
-                                          OnClick="@(() => ShowEditForm(customer.Id))">
+                                          OnClick="@(() => ShowEditForm(customer.CustomerId))">
                                     Edit
                                 </SfButton>
 
                                 <SfButton CssClass="e-small e-danger"
                                           IconCss="fas fa-trash-alt"
-                                          OnClick="@(() => DeleteCustomer(customer.Id))">
+                                          OnClick="@(() => DeleteCustomer(customer.CustomerId))">
                                     Delete
                                 </SfButton>
                             </Template>
@@ -119,20 +119,20 @@ else if (currentView == CustomerView.Form)
           
 
             <div class="card-body">
-                <EditForm Model="@customer" OnValidSubmit="HandleValidSubmit">
+                <EditForm Model="@customerMaster" OnValidSubmit="HandleValidSubmit">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
                     <div class="mb-3">
                         <label class="form-label">Customer Name</label>
-                        <InputText class="form-control" @bind-Value="customer.Customer" />
-                        <ValidationMessage For="@(() => customer.Customer)" />
+                        <InputText class="form-control" @bind-Value="customerMaster.Customer" />
+                        <ValidationMessage For="@(() => customerMaster.Customer)" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Mobile Number</label>
-                        <InputText class="form-control" @bind-Value="customer.MobileNo" />
-                        <ValidationMessage For="@(() => customer.MobileNo)" />
+                        <InputText class="form-control" @bind-Value="customerMaster.MobileNo" />
+                        <ValidationMessage For="@(() => customerMaster.MobileNo)" />
                     </div>
 
                     <div class="d-flex justify-content-between">

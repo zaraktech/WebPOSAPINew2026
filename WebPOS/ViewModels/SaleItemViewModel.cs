@@ -15,7 +15,7 @@
         public decimal SaleAmount { get; set; }
 
         public decimal TotalAmount => Qty * SalePrice;
-        public int? ShopnameId { get; set; }
+       // public int? ShopnameId { get; set; }
         public String ShopName { get; set; }
         public decimal Discount { get; set; }
         public decimal DiscountAmt { get; set; }

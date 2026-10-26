@@ -9,15 +9,15 @@ namespace WebPOS.Pages
         private enum CustomerView { List, Form }
         private CustomerView currentView = CustomerView.List;
 
-        private List<CustomerMaster> customers;
-        private CustomerMaster customer = new CustomerMaster();
+        private List<CustomerMaster> customerMasters;
+        private CustomerMaster customerMaster = new CustomerMaster();
         private bool isLoading = false;
 
         [Parameter] public int Id { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            customers = null;
+            customerMasters = null;
             await LoadCustomers();
         }
 
@@ -25,14 +25,14 @@ namespace WebPOS.Pages
         {
             if (Id > 0)
             {
-                customer = await CustomerService.GetCustomer(Id) ?? new CustomerMaster();
+                customerMaster = await CustomerService.GetCustomer(Id) ?? new CustomerMaster();
                 currentView = CustomerView.Form;
             }
         }
 
         private async Task LoadCustomers()
         {
-            customers = await CustomerService.GetCustomers();
+            customerMasters = await CustomerService.GetCustomers();
             StateHasChanged();
             await Task.Delay(100);
             // await JS.InvokeVoidAsync("initializeDataTable", "#customersTable");
@@ -40,7 +40,7 @@ namespace WebPOS.Pages
 
         private void ShowAddForm()
         {
-            customer = new CustomerMaster();
+            customerMaster = new CustomerMaster();
             currentView = CustomerView.Form;
             NavigationManager.NavigateTo("/customers/new");
         }
@@ -62,9 +62,9 @@ namespace WebPOS.Pages
             isLoading = true;
             try
             {
-                if (customer.CustomerId == 0)
+                if (customerMaster.CustomerId == 0)
                 {
-                    bool status = await CustomerService.AddCustomer(customer);
+                    bool status = await CustomerService.AddCustomer(customerMaster);
                     if (status == true)
                     {
                         await ToastService.Success("Customer added successfully.");
@@ -82,7 +82,7 @@ namespace WebPOS.Pages
 
                 else
                 {
-                    bool status = await CustomerService.UpdateCustomer(customer);
+                    bool status = await CustomerService.UpdateCustomer(customerMaster);
                     if (status == true)
                     {
 

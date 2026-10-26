@@ -1,7 +1,59 @@
-﻿@page "/home"
+@page "/"
+@page "/home"
+<PageTitle>Dashboard | WebPOS</PageTitle>
 
-<PageTitle>Home</PageTitle>
+<section class="pos-dashboard">
+    <div class="dashboard-welcome">
+        <div>
+            <span class="dashboard-kicker">STORE OVERVIEW</span>
+            <h2>Welcome to WebPOS</h2>
+            <p>Manage your store operations from one place.</p>
+        </div>
+        <div class="dashboard-date"><i class="bi bi-calendar3"></i> Point of Sale</div>
+    </div>
 
-<h1>Hello, world!</h1>
+    <div class="dashboard-section-heading">
+        <div>
+            <h3>Quick actions</h3>
+            <p>Jump straight into your daily tasks.</p>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <div class="pos-action-grid">
+        <a class="pos-action-card pos-action-primary" href="/sales">
+            <span class="pos-action-icon"><i class="bi bi-cash-register"></i></span>
+            <span class="pos-action-copy"><strong>New sale</strong><small>Start a customer sale</small></span>
+            <i class="bi bi-arrow-up-right pos-action-arrow"></i>
+        </a>
+        <a class="pos-action-card" href="/purchases">
+            <span class="pos-action-icon"><i class="bi bi-bag-plus"></i></span>
+            <span class="pos-action-copy"><strong>Purchases</strong><small>Manage stock purchases</small></span>
+            <i class="bi bi-arrow-up-right pos-action-arrow"></i>
+        </a>
+        <a class="pos-action-card" href="/products">
+            <span class="pos-action-icon"><i class="bi bi-box-seam"></i></span>
+            <span class="pos-action-copy"><strong>Products</strong><small>Maintain your catalogue</small></span>
+            <i class="bi bi-arrow-up-right pos-action-arrow"></i>
+        </a>
+        <a class="pos-action-card" href="/customers">
+            <span class="pos-action-icon"><i class="bi bi-people"></i></span>
+            <span class="pos-action-copy"><strong>Customers</strong><small>View customer records</small></span>
+            <i class="bi bi-arrow-up-right pos-action-arrow"></i>
+        </a>
+    </div>
+
+    <div class="dashboard-section-heading dashboard-lower-heading">
+        <div>
+            <h3>Store management</h3>
+            <p>Access the tools you use to run your business.</p>
+        </div>
+    </div>
+    <div class="pos-management-grid">
+        <a href="/suppliers"><i class="bi bi-truck"></i><span><strong>Suppliers</strong><small>Supplier records</small></span><i class="bi bi-chevron-right"></i></a>
+        <a href="/sizespage"><i class="bi bi-rulers"></i><span><strong>Sizes</strong><small>Product size setup</small></span><i class="bi bi-chevron-right"></i></a>
+        <a href="/shopnames"><i class="bi bi-shop"></i><span><strong>Shops</strong><small>Store information</small></span><i class="bi bi-chevron-right"></i></a>
+        <a href="/offers"><i class="bi bi-tags"></i><span><strong>Offers</strong><small>Promotions and offers</small></span><i class="bi bi-chevron-right"></i></a>
+        <a href="/sales-report"><i class="bi bi-graph-up-arrow"></i><span><strong>Sales report</strong><small>Review sales activity</small></span><i class="bi bi-chevron-right"></i></a>
+        <a href="/purchase-report"><i class="bi bi-clipboard-data"></i><span><strong>Purchase report</strong><small>Review purchases</small></span><i class="bi bi-chevron-right"></i></a>
+    </div>
+</section>

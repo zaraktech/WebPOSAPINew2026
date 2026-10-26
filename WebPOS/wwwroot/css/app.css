@@ -1,212 +1,325 @@
-* =========================================
-GLOBAL
-========================================= */
 
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: #f4f6f9;
-    font-family: 'Segoe UI', sans-serif;
+/* =========================================================
+   WebPOS Responsive Fixes
+
+/* =========================================================
+   WebPOS Responsive Fixes
+   Append to the end of the existing stylesheet
+   ========================================================= */
+
+/* Prevent horizontal overflow from nested layout elements */
+.app-body,
+.crud-page,
+.crud-card,
+.crud-form-card,
+.crud-grid-wrap {
+    min-width: 0;
 }
 
-#app {
-    height: 100%;
+.crud-page {
+    width: 100%;
 }
 
-/* =========================================
-       LAYOUT
-    ========================================= */
-
-.layout-shell {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
+/* Keep long titles and action buttons from overlapping */
+.crud-header {
+    flex-wrap: wrap;
+    min-width: 0;
 }
 
-/* =========================================
-       SIDEBAR
-    ========================================= */
-
-.app-sidebar {
-    width: 260px;
-    background: #1f2937;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #2d3748;
+.crud-header > div {
+    min-width: 0;
 }
 
-    .app-sidebar.collapsed {
-        width: 0px;
+.crud-title,
+.crud-subtitle {
+    overflow-wrap: anywhere;
+}
+
+.crud-header .crud-primary-button {
+    flex-shrink: 0;
+}
+
+/* Keep grid inside its card on smaller screens */
+.crud-grid-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.crud-grid-wrap .e-grid {
+    max-width: 100%;
+}
+
+/* Avoid toolbar content being compressed or overlapping */
+.crud-card-toolbar {
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+}
+
+.crud-record-title {
+    min-width: 0;
+}
+
+.crud-record-title > div {
+    min-width: 0;
+}
+
+/* Form fields must shrink within their grid columns */
+.crud-form-content,
+.crud-form-content .row,
+.crud-form-content [class*="col-"] {
+    min-width: 0;
+}
+
+.professional-input,
+.crud-form-content .e-control-wrapper,
+.crud-form-content .e-input-group,
+.crud-form-content .e-input-group.e-control-wrapper {
+    max-width: 100%;
+}
+
+.crud-form-content input,
+.crud-form-content textarea,
+.crud-form-content select {
+    max-width: 100%;
+}
+
+/* Tablet and mobile */
+@media (max-width: 768px) {
+    .app-body {
+        padding: 16px;
     }
 
-.sidebar-logo {
-    height: 65px;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid #374151;
-    font-weight: 700;
-    font-size: 18px;
-    background: #111827;
+    .crud-header {
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .crud-header > div {
+        width: 100%;
+    }
+
+    .crud-primary-button {
+        min-height: 44px !important;
+        align-self: flex-start;
+    }
+
+    .crud-card-toolbar {
+        padding: 14px 16px;
+    }
+
+    .crud-form-card {
+        max-width: 100%;
+    }
+
+    .crud-form-header {
+        padding: 16px;
+    }
+
+    .crud-form-content {
+        padding: 16px;
+    }
+
+    .form-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .form-actions > button,
+    .form-actions > .crud-primary-button,
+    .form-actions > .btn-secondary-ui {
+        min-height: 44px;
+    }
+
+    .grid-actions {
+        gap: 8px;
+    }
+
+    .grid-action {
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Retain usable Syncfusion grid columns with horizontal scrolling */
+    .crud-grid-wrap .e-grid .e-headercell,
+    .crud-grid-wrap .e-grid .e-rowcell {
+        white-space: nowrap;
+    }
 }
 
-.sidebar-menu {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 0;
-}
-
-    /* =========================================
-       SIDEBAR MENU
-    ========================================= */
-
-    .sidebar-menu .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        color: #d1d5db;
-        padding: 12px 20px;
-        text-decoration: none;
-        border-radius: 8px;
-        margin: 4px 12px;
+/* Small phones */
+@media (max-width: 480px) {
+    html,
+    body {
         font-size: 14px;
-        font-weight: 500;
     }
 
-        .sidebar-menu .nav-link:hover {
-            background: #374151;
-            color: white;
-        }
-
-    .sidebar-menu .active {
-        background: #2563eb;
-        color: white !important;
+    .app-body {
+        padding: 10px;
     }
 
-    .sidebar-menu i {
-        font-size: 18px;
-        width: 20px;
+    .crud-title {
+        font-size: 21px;
     }
 
-/* =========================================
-       MAIN AREA
-    ========================================= */
-
-.layout-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* =========================================
-       HEADER
-    ========================================= */
-
-.app-header {
-    height: 65px;
-    background: white;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 24px;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.menu-toggle {
-    border: none;
-    background: transparent;
-    font-size: 22px;
-    cursor: pointer;
-    color: #374151;
-}
-
-.page-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #111827;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-}
-
-.user-box {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #f3f4f6;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-weight: 500;
-}
-
-    .user-box i {
-        font-size: 20px;
+    .crud-subtitle {
+        font-size: 12px;
     }
 
-/* =========================================
-       BODY
-    ========================================= */
+    .crud-kicker {
+        font-size: 9px;
+    }
 
-.app-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    background: #f4f6f9;
+    .crud-header {
+        gap: 10px;
+    }
+
+    .crud-primary-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .crud-card,
+    .crud-form-card {
+        border-radius: 9px;
+    }
+
+    .crud-card-toolbar {
+        padding: 12px;
+    }
+
+    .crud-form-header {
+        gap: 10px;
+        padding: 14px 12px;
+    }
+
+    .crud-form-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .crud-form-content {
+        padding: 12px;
+    }
+
+    .form-section-title {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+
+    .professional-label {
+        margin-bottom: 6px;
+    }
+
+    .form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .form-actions > button,
+    .form-actions > .crud-primary-button,
+    .form-actions > .btn-secondary-ui {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .back-link {
+        min-height: 36px;
+    }
 }
 
-/* =========================================
-       DEVEXPRESS GRID
-    ========================================= */
-
-.dxbl-grid {
-    border-radius: 12px !important;
-    overflow: hidden;
-    border: 1px solid #e5e7eb !important;
-    background: white !important;
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
-.dxbl-grid-header-row {
-    background: #f9fafb !important;
-    color: #111827 !important;
-    font-weight: 600;
+
+/* =========================================================
+   WebPOS design system — clean retail POS theme
+   ========================================================= */
+:root {
+    --pos-brand: #0b8f68;
+    --pos-brand-dark: #087454;
+    --pos-brand-soft: #e7f8f0;
+    --pos-ink: #172338;
+    --pos-muted: #718096;
+    --pos-line: #e4eaf1;
+    --pos-panel: #ffffff;
+    --pos-canvas: #f4f7fb;
+    --pos-radius: 14px;
+    --pos-shadow: 0 5px 22px rgba(18, 35, 58, .045);
 }
+html { background:var(--pos-canvas); }
+body { color:var(--pos-ink); background:var(--pos-canvas); font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+button, input, select, textarea { font:inherit; }
+:focus-visible { outline:3px solid rgba(16,185,129,.32); outline-offset:2px; }
+.crud-page { color:var(--pos-ink); }
+.crud-header { align-items:center; gap:18px; margin-bottom:22px; }
+.crud-kicker { color:var(--pos-brand); font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.crud-title { color:var(--pos-ink); font-size:26px; font-weight:750; letter-spacing:-.7px; line-height:1.2; }
+.crud-subtitle { color:var(--pos-muted); font-size:13px; line-height:1.55; margin-top:7px; }
+.crud-card,.crud-form-card { background:var(--pos-panel); border:1px solid var(--pos-line); border-radius:var(--pos-radius); box-shadow:var(--pos-shadow); overflow:hidden; }
+.crud-card-toolbar { padding:18px 20px; border-bottom:1px solid #edf1f5; background:#fff; }
+.crud-record-title strong { color:var(--pos-ink); font-size:14px; font-weight:750; }
+.crud-record-title span { color:var(--pos-muted); font-size:11px; }
+.crud-record-icon,.crud-form-icon { background:var(--pos-brand-soft); color:var(--pos-brand-dark); border-radius:11px; }
+.crud-form-header { background:linear-gradient(135deg,#fff 0%,#f8fcfa 100%); border-bottom:1px solid var(--pos-line); }
+.crud-form-title { color:var(--pos-ink); font-weight:750; letter-spacing:-.35px; }
+.crud-form-subtitle { color:var(--pos-muted); }
+.crud-form-content { background:#fff; }
+.professional-label,.crud-form-content label { color:#35445a; font-size:12px; font-weight:650; }
+.professional-input,.crud-form-content .form-control,.crud-form-content input,.crud-form-content select,.crud-form-content textarea { min-height:40px; border-color:#dce4ed; border-radius:9px; color:#1f2d40; background:#fff; box-shadow:none; }
+.professional-input:focus,.crud-form-content .form-control:focus,.crud-form-content input:focus,.crud-form-content select:focus,.crud-form-content textarea:focus { border-color:#55c79d; box-shadow:0 0 0 3px rgba(16,185,129,.12); }
+.crud-primary-button,.btn-primary-ui { min-height:40px; border:1px solid var(--pos-brand)!important; border-radius:9px!important; background:var(--pos-brand)!important; color:#fff!important; font-weight:700!important; box-shadow:0 3px 8px rgba(11,143,104,.12); }
+.crud-primary-button:hover,.btn-primary-ui:hover { background:var(--pos-brand-dark)!important; border-color:var(--pos-brand-dark)!important; }
+.btn-secondary-ui,.back-link { border-radius:9px; }
+.grid-actions { display:flex; align-items:center; justify-content:center; gap:6px; }
+.grid-action { border-radius:8px!important; }
+.crud-grid-wrap .e-grid { border:0!important; font-family:inherit; }
+.crud-grid-wrap .e-grid .e-gridheader { border-bottom:1px solid var(--pos-line); }
+.crud-grid-wrap .e-grid .e-headercell { background:#f8fafc; color:#526176; font-size:11px; font-weight:750; letter-spacing:.025em; }
+.crud-grid-wrap .e-grid .e-rowcell { color:#35445a; font-size:12px; border-color:#edf1f5; }
+.crud-grid-wrap .e-grid .e-row:hover .e-rowcell { background:#f7fcf9; }
+.e-popup,.e-daterangepicker,.e-datepicker,.e-dialog,.e-calendar,.e-tooltip-wrap { z-index:25000!important; }
 
-.dxbl-grid-data-row:hover td {
-    background: #f3f4f6 !important;
-}
-
-/* =========================================
-       CARD STYLE
-    ========================================= */
-
-.dashboard-card {
-    background: white;
-    border-radius: 14px;
-    padding: 20px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 20px;
-}
-
-/* =========================================
-       SCROLLBAR
-    ========================================= */
-
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
+/* Dashboard */
+.pos-dashboard { width:100%; max-width:1440px; margin:0 auto; }
+.dashboard-welcome { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:26px 28px; border:1px solid #dcefe6; border-radius:16px; background:linear-gradient(115deg,#fff 0%,#f0fbf6 100%); box-shadow:var(--pos-shadow); }
+.dashboard-kicker { color:var(--pos-brand); font-size:10px; font-weight:800; letter-spacing:.13em; }
+.dashboard-welcome h2 { margin:8px 0 6px; color:var(--pos-ink); font-size:27px; font-weight:780; letter-spacing:-.8px; }
+.dashboard-welcome p,.dashboard-section-heading p { margin:0; color:var(--pos-muted); font-size:13px; }
+.dashboard-date { display:flex; align-items:center; gap:8px; padding:10px 13px; border:1px solid #dceee5; border-radius:10px; background:rgba(255,255,255,.8); color:#4c665c; font-size:12px; font-weight:650; white-space:nowrap; }
+.dashboard-section-heading { display:flex; align-items:flex-end; justify-content:space-between; margin:28px 0 14px; }
+.dashboard-section-heading h3 { margin:0 0 5px; color:var(--pos-ink); font-size:16px; font-weight:750; letter-spacing:-.25px; }
+.pos-action-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.pos-action-card { display:flex; align-items:center; gap:13px; min-width:0; padding:18px 16px; border:1px solid var(--pos-line); border-radius:14px; background:#fff; box-shadow:var(--pos-shadow); color:inherit; text-decoration:none; transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.pos-action-card:hover { transform:translateY(-2px); border-color:#b9e7d2; box-shadow:0 10px 26px rgba(18,35,58,.08); color:inherit; }
+.pos-action-primary { border-color:#c9ecdc; background:linear-gradient(135deg,#fff 0%,#f1fcf6 100%); }
+.pos-action-icon { display:grid; place-items:center; width:44px; height:44px; flex:0 0 44px; border-radius:12px; background:#e6f8ef; color:#07805b; font-size:19px; }
+.pos-action-copy { display:flex; flex-direction:column; gap:5px; min-width:0; }
+.pos-action-copy strong { color:var(--pos-ink); font-size:13px; font-weight:750; }
+.pos-action-copy small { color:var(--pos-muted); font-size:11px; line-height:1.35; }
+.pos-action-arrow { margin-left:auto; align-self:flex-start; color:#98a5b5; font-size:13px; }
+.pos-management-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.pos-management-grid a { display:flex; align-items:center; gap:12px; min-width:0; padding:15px 16px; border:1px solid var(--pos-line); border-radius:12px; background:#fff; color:inherit; text-decoration:none; transition:border-color .18s ease,background .18s ease; }
+.pos-management-grid a:hover { border-color:#b9e7d2; background:#fbfefc; color:inherit; }
+.pos-management-grid a>i:first-child { display:grid; place-items:center; width:38px; height:38px; flex:0 0 38px; border-radius:10px; background:#f0f5f8; color:#53667d; font-size:16px; }
+.pos-management-grid a span { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.pos-management-grid strong { color:var(--pos-ink); font-size:12px; font-weight:750; }
+.pos-management-grid small { color:var(--pos-muted); font-size:11px; }
+.pos-management-grid a>i:last-child { margin-left:auto; color:#9aa6b5; font-size:11px; }
+@media(max-width:1100px) { .pos-action-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .pos-management-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { .dashboard-welcome { align-items:flex-start; flex-direction:column; padding:21px 18px; } .dashboard-welcome h2 { font-size:23px; } .dashboard-date { display:none; } .pos-action-grid,.pos-management-grid { grid-template-columns:1fr; gap:10px; } .pos-action-card { padding:15px; } .dashboard-section-heading { margin-top:23px; } .crud-title { font-size:23px; } }
+@media(prefers-reduced-motion:reduce) { .pos-action-card,.pos-management-grid a { transition:none; } }

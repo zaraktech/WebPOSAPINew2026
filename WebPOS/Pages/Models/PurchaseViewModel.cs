@@ -10,9 +10,9 @@
         public int ProductId { get; set; }
         public string ProductName { get; set; }
         public int SizeId { get; set; }
-        public string SizeName { get; set; }
+        public string? SizeName { get; set; }
         public string? BarcodeText { get; set; }
-        public int Barcode { get; set; }
+        public int? Barcode { get; set; }
         public int Qty { get; set; }
         public decimal CostPrice { get; set; }
         public decimal SalePrice { get; set; }

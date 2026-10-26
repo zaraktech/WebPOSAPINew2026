@@ -4,7 +4,7 @@
 
 
 @using Syncfusion.Blazor.Spinner
-@using WebPOS.Models
+@using Shared.Models
 @inject SizeService SizeService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
@@ -45,7 +45,7 @@
                 }
                 else
                 {
-                    <SfGrid TValue="Sizes"
+                    <SfGrid TValue="SizeMaster"
                             DataSource="sizes"
                             AllowPaging="true"
                             AllowSorting="true"
@@ -66,18 +66,18 @@
                                         TextAlign="TextAlign.Center">
                                 <Template Context="item">
                                     @{
-                                        var s = (Sizes)item;
+                                        var s = (SizeMaster)item;
                                     }
 
                                     <SfButton CssClass="e-primary e-small me-2"
                                               IconCss="e-icons e-edit"
-                                              OnClick="@(() => ShowEditForm(s.SizeId))">
+                                              OnClick="@(() => ShowEditForm(s.SizId))">
                                         Edit
                                     </SfButton>
 
                                     <SfButton CssClass="e-danger e-small"
                                               IconCss="e-icons e-delete"
-                                              OnClick="@(() => DeleteSize(s.SizeId))">
+                                              OnClick="@(() => DeleteSize(s.SizId))">
                                         Delete
                                     </SfButton>
                                 </Template>
@@ -98,7 +98,7 @@ else if (currentView == SizeView.Form)
 
             <div class="e-card-header bg-primary text-white text-center">
                 <h3 class="mb-0">
-                    @((size.SizeId == 0 ? "Add New" : "Edit") + " Size")
+                    @((size.SizId == 0 ? "Add New" : "Edit") + " Size")
                 </h3>
             </div>
 
@@ -111,8 +111,8 @@ else if (currentView == SizeView.Form)
                     <div class="mb-3">
                         <SfTextBox Placeholder="Size Name"
                                    FloatLabelType="FloatLabelType.Always"
-                                   @bind-Value="size.SizeName" />
-                        <ValidationMessage For="@(() => size.SizeName)" />
+                                   @bind-Value="size.Sizes" />
+                        <ValidationMessage For="@(() => size.Sizes)" />
                     </div>
 
                     <div class="d-flex justify-content-between mt-3">
@@ -145,10 +145,10 @@ else if (currentView == SizeView.Form)
     private enum SizeView { List, Form }
     private SizeView currentView = SizeView.List;
 
-    private List<WebPOS.Models.Sizes> sizes;
-    private WebPOS.Models.Sizes size = new WebPOS.Models.Sizes
+    private List<SizeMaster> sizes;
+    private SizeMaster size = new SizeMaster()
         {
-            SizeName = string.Empty
+            Sizes = string.Empty
         };
     private bool isLoading = false;
 
@@ -181,9 +181,9 @@ else if (currentView == SizeView.Form)
 
     private void ShowAddForm()
     {
-        size = new WebPOS.Models.Sizes
+        size = new SizeMaster
             {
-                SizeName = string.Empty
+                Sizes = string.Empty
             };
         currentView = SizeView.Form;
         NavigationManager.NavigateTo("/sizespage/new");
@@ -207,7 +207,7 @@ else if (currentView == SizeView.Form)
         isLoading = true;
         try
         {
-            if (size.SizeId == 0)
+            if (size.SizId == 0)
             {
                 bool status=   await SizeService.AddSize(size);
                 if (status == true)

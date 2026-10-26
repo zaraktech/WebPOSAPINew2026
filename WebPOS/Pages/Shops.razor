@@ -20,99 +20,103 @@
                   OnValidSubmit="@(() => HandleValidSubmit(item))">
 
             <DataAnnotationsValidator />
-            <ValidationSummary />
 
-            <div class="container mt-4">
+            <div class="store-form-container">
 
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
+                <SfCard CssClass="store-card">
 
-                        <SfCard CssClass="shadow" title="Store Info">
+                    <!-- Header -->
+                    <div class="store-card-header">
+                        <div>
+                            <div class="store-title">
+                                Store Information
+                            </div>
 
-                            
-
-                            <CardContent>
-
-                                <div class="row g-4">
-
-                                    <!-- Store -->
-                                    <div class="col-md-6">
-                                       
-                                        <SfTextBox Placeholder="Enter Store Name"
-                                                   FloatLabelType="FloatLabelType.Auto"
-                                                   @bind-Value="shopName.Store">
-                                        </SfTextBox>
-                                    </div>
-
-                                    <!-- Mobile -->
-                                    <div class="col-md-6">
-                                        
-
-                                        <SfTextBox Placeholder="Enter Mobile Number"
-                                                   FloatLabelType="FloatLabelType.Auto"
-                                                   @bind-Value="shopName.MobileNo">
-                                        </SfTextBox>
-                                    </div>
-
-                                    <!-- GST -->
-                                    <div class="col-md-6">
-                                       
-                                        <SfTextBox Placeholder="Enter GST Number"
-                                                   FloatLabelType="FloatLabelType.Auto"
-                                                   @bind-Value="shopName.Gstno">
-                                        </SfTextBox>
-                                    </div>
-
-                                    <!-- GST % -->
-                                    <div class="col-md-6">
-                                        
-
-                                        <SfNumericTextBox TValue="double?"
-                                            FloatLabelType="FloatLabelType.Auto"
-                                                          Placeholder="GST %"
-                                                        Min="0"
-                                                          Max="100"
-                                                          @bind-Value="shopName.Gstpercent">
-                                        </SfNumericTextBox>
-                                    </div>
-
-                                    <!-- Address -->
-                                    <div class="col-12">
-                                       
-
-                                        <SfTextBox Placeholder="Enter Address"
-                                                   Multiline="true"
-                                                   FloatLabelType="FloatLabelType.Auto"
-                                                   @bind-Value="shopName.Address">
-                                        </SfTextBox>
-                                    </div>
-
-                                </div>
-
-                            </CardContent>
-
-                            <CardFooter>
-
-                                <div class="text-end">
-
-                                    <SfButton CssClass="e-primary me-2"
-                                              IconCss="e-icons e-save"
-                                              IsPrimary="true">
-                                        Save
-                                    </SfButton>
-
-                                    <SfButton CssClass="e-outline">
-                                        Clear
-                                    </SfButton>
-
-                                </div>
-
-                            </CardFooter>
-
-                        </SfCard>
-
+                            <div class="store-subtitle">
+                                Manage your store details and GST information
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <CardContent>
+
+                        <ValidationSummary class="validation-summary" />
+
+                        <div class="row g-3">
+
+                            <!-- Store Name -->
+                            <div class="col-md-6">
+                                <SfTextBox Placeholder="Enter store name"
+                                           FloatLabelType="FloatLabelType.Auto"
+                                           @bind-Value="item.Store">
+                                </SfTextBox>
+                            </div>
+
+                            <!-- Mobile -->
+                            <div class="col-md-6">
+                                <SfTextBox Placeholder="Enter mobile number"
+                                           FloatLabelType="FloatLabelType.Auto"
+                                           @bind-Value="item.MobileNo">
+                                </SfTextBox>
+                            </div>
+
+                            <!-- GST Number -->
+                            <div class="col-md-6">
+                                <SfTextBox Placeholder="Enter GST number"
+                                           FloatLabelType="FloatLabelType.Auto"
+                                           @bind-Value="item.Gstno">
+                                </SfTextBox>
+                            </div>
+
+                            <!-- GST Percentage -->
+                            <div class="col-md-6">
+                                <SfNumericTextBox TValue="double?"
+                                                  FloatLabelType="FloatLabelType.Auto"
+                                                  Placeholder="GST percentage"
+                                                  Min="0"
+                                                  Max="100"
+                                                  Decimals="2"
+                                                  Format="N2"
+                                                  ShowSpinButton="false"
+                                                  @bind-Value="item.Gstpercent">
+                                </SfNumericTextBox>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-12">
+                                <SfTextBox Placeholder="Enter complete store address"
+                                           Multiline="true"
+                                           FloatLabelType="FloatLabelType.Auto"
+                                           @bind-Value="item.Address">
+                                </SfTextBox>
+                            </div>
+
+                        </div>
+
+                    </CardContent>
+
+                    <!-- Footer -->
+                    <CardFooter>
+
+                        <div class="store-form-actions">
+
+                            <SfButton Type="ButtonType.Submit"
+                                      CssClass="store-save-btn"
+                                      IconCss="e-icons e-save">
+                                Save
+                            </SfButton>
+
+                            <SfButton Type="ButtonType.Button"
+                                      CssClass="store-clear-btn"
+                                     >
+                                Clear
+                            </SfButton>
+
+                        </div>
+
+                    </CardFooter>
+
+                </SfCard>
 
             </div>
 

@@ -7,9 +7,10 @@
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.Layouts
 @using System.Text.Json
+@using WebPOS.Models
 @using WebPOS.ViewModels
 
-@using global::Shared.Models
+
 @inject IJSRuntime JS
 @inject PurchaseService purchaseService
 @inject SalesService salesService
@@ -128,7 +129,7 @@
                                         AllowFiltering="true" AllowCustom="true"
                                         PopupHeight="200px"
                                         FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                <ComboBoxEvents TValue="string" TItem="Customer" ValueChange="OnValueChange"></ComboBoxEvents>
+                                <ComboBoxEvents TValue="string" TItem="CustomerMaster" ValueChange="OnValueChange"></ComboBoxEvents>
                                 <ComboBoxFieldSettings Text="MobileNo" Value="MobileNo"></ComboBoxFieldSettings>
                             </SfComboBox>
                         </div>
@@ -241,7 +242,7 @@
         var discSetting = await settingsService.GetSetting("DISCOUNT");
         DiscountPercent = double.TryParse(discSetting?.Value, out double discResult) ? discResult : 0;
 
-      
+
 
     }
 
@@ -252,7 +253,7 @@
         StateHasChanged();
     }
 
-    private async Task OnValueChange(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, Customer> args)
+    private async Task OnValueChange(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, CustomerMaster> args)
     {
         var customer = Customers.FirstOrDefault(c => c.MobileNo == args.Value);
         if (customer != null)
@@ -275,7 +276,7 @@
         CGST = Math.Round(TotalAmount * ((GSTPercent / 2) / 100), 2);
         SGST = Math.Round(TotalAmount * ((GSTPercent / 2) / 100), 2);
         TotalAmountGST = TotalAmount + CGST + SGST;
-        Rewards = (int)TotalAmountGST / 100; // 1% Rewards
+        Rewards = (int)(TotalAmountGST / 100); // 1% Rewards
         // Update difference if amount received is set
         Difference = TotalAmountGST - AmountReceived;
 
@@ -297,14 +298,14 @@
             if (saleList == null || !saleList.Any())
             {
 
-				await ToastService.Warning("Please add at least one item to the sale.");
+                await ToastService.Warning("Please add at least one item to the sale.");
                 return;
             }
 
             if (salesVM.CustomerId <= 0)
             {
-                
-				await ToastService.Warning("Please select a customer.");
+
+                await ToastService.Warning("Please select a customer.");
                 return;
             }
 
@@ -320,31 +321,31 @@
                 SaleDate = salesVM.SaleDate,
                 RewardPoints =salesVM.RewardPoints,
                 GSTPercent = salesVM.GSTPercent,
-			    
+
                 SaleItems = saleList,
-                                
+
                 PaymentId = salesVM.PaymentId, // Add this if your model has it
                 AmountReceived = AmountReceived // Convert if needed
             };
-          
-			var result = await salesService.AddSaleAsync(sale);
+
+            var result = await salesService.AddSaleAsync(sale);
 
             if (result)
             {
                 await ResetFormAfterSave();
-              
-				await ToastService.Success("Sale saved successfully!");
+
+                await ToastService.Success("Sale saved successfully!");
             }
             else
             {
-          
-				await ToastService.Error("Failed to save sale. Please try again."); 
+
+                await ToastService.Error("Failed to save sale. Please try again."); 
             }
         }
         catch (Exception ex)
         {
-          
-			await ToastService.Error("An error occurred while saving the sale.");
+
+            await ToastService.Error("An error occurred while saving the sale.");
             // Consider logging the exception
             Console.WriteLine($"SaveSales error: {ex}");
         }
@@ -403,25 +404,28 @@
                 if (data != null)
                 {
                     // Create SaleItemViewModel from PurchaseViewModel
+                    int barcode = data.Barcode ?? 0;
+                    // The following properties are not present in 'Purchase', so use placeholders or map from available properties
+                    // Replace 'data.ProductId', 'data.ProductName', etc. with actual available properties from 'Purchase'
                     var saleItem = new SaleItemViewModel
                     {
-                        Barcode = data.Barcode,
-                        ProductId = data.ProductId,
-                        ProductName = data.ProductName,
-                        SizeId = data.SizeId,
-                        SizeName = data.SizeName,
+                        Barcode = barcode,
+                        ProductId = data.ItemId, // Replace or map as appropriate
+                        ProductName = data.Item ?? string.Empty, // Replace or map as appropriate
+                        SizeId = data.SizeId , // Replace or map as appropriate
+                        SizeName = data.Sizes ?? string.Empty, // Replace or map as appropriate
                         Qty = 1,
-                        SalePrice = data.SalePrice,
-                        Discount = data.Discount,
-                        ShopnameId = data.ShopNamesId
+                        SalePrice = (decimal)data.SalePrice, // Explicit cast from double to decimal
+                        Discount = (decimal)(data.Discount ?? 0), // Explicit cast and null-coalescing
+                        ShopName = data.Unit ?? string.Empty // Replace or map as appropriate
                     };
 
                     // Calculate amounts
                     decimal lineTotal = saleItem.Qty * saleItem.SalePrice;
-                    saleItem.DiscountAmt = lineTotal * (saleItem.Discount / 100);
+                    saleItem.DiscountAmt = lineTotal * ((decimal)saleItem.Discount / 100);
                     saleItem.Amount = lineTotal - saleItem.DiscountAmt;
                    // saleItem.TotalAmount = saleItem.Amount;
-					saleItem.SalePrice = data.SalePrice;
+					saleItem.SalePrice = (Decimal)data.SalePrice;
 
                     // Add to sale list
                     saleList.Add(saleItem);

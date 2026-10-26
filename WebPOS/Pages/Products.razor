@@ -1,6 +1,5 @@
 ﻿@page "/products"
 
-
 @using WebPOS.Components
 @using global::Shared.Models
 
@@ -21,31 +20,42 @@
 
             <DataAnnotationsValidator />
 
-            <div class="mb-3">
-                <label>Product Name</label>
+            <div class="row g-3">
 
-                <InputText class="form-control"
-                           @bind-Value="item.Item" width="40%" />
+                <!-- Product Name -->
+                <div class="col-12">
+                    <label class="form-label">Product Name</label>
+
+                    <InputText class="form-control"
+                               @bind-Value="item.Item"
+                               placeholder="Enter product name" />
+                </div>
+
+                <!-- Discount -->
+                <div class="col-md-6">
+                    <label class="form-label">Discount</label>
+
+                    <InputNumber class="form-control"
+                                 @bind-Value="item.DisPercent" />
+                </div>
+
+                <!-- Reorder -->
+                <div class="col-md-6">
+                    <label class="form-label">Reorder Level</label>
+
+                    <InputNumber class="form-control"
+                                 @bind-Value="item.ReOrder" />
+                </div>
+
+                <!-- Save -->
+                <div class="col-12 mt-4">
+                    <button type="submit"
+                            class="btn btn-success px-4">
+                        Save
+                    </button>
+                </div>
+
             </div>
-
-            <div class="mb-3">
-                <label>Discount</label>
-
-                <InputNumber class="form-control"
-                             @bind-Value="item.DisPercent" />
-            </div>
-
-            <div class="mb-3">
-                <label>Reorder</label>
-
-                <InputNumber class="form-control"
-                             @bind-Value="item.ReOrder" />
-            </div>
-
-            <button type="submit"
-                    class="btn btn-success">
-                Save
-            </button>
 
         </EditForm>
 
